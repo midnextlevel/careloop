@@ -1,5 +1,5 @@
 // An explicit public allowlist. NEVER runtime-cache navigation or private responses.
-const CACHE = 'little-moments-public-v1';
+const CACHE = 'careloop-public-v2';
 const PUBLIC_ASSETS = ['/static/app.css', '/static/app.js', '/static/offline.html', '/static/icon-192.png', '/static/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PUBLIC_ASSETS)).then(() => self.skipWaiting()));

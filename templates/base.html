@@ -1,10 +1,10 @@
 {% load static %}<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#24594b"><meta name="robots" content="noindex,nofollow">
-<title>{% block title %}Little moments{% endblock %} · Journal</title>
+<title>{% block title %}Journal{% endblock %} · Careloop</title>
 <link rel="manifest" href="{% static 'manifest.webmanifest' %}"><link rel="apple-touch-icon" href="{% static 'icon-192.png' %}">
 <link rel="stylesheet" href="{% static 'app.css' %}"><script src="{% static 'app.js' %}" defer></script></head>
-<body hx-history="false"><header class="top"><a class="brand" href="{% url 'timeline' %}"><span class="brand-mark" aria-hidden="true">✳</span> Little moments<span class="brand-sub">A PRIVATE DAILY JOURNAL</span></a>
+<body hx-history="false"><header class="top"><a class="brand" href="{% url 'timeline' %}"><span class="brand-mark" aria-hidden="true">✳</span> Careloop<span class="brand-sub">A PRIVATE DAILY JOURNAL</span></a>
 <nav aria-label="Main navigation">{% if user.is_authenticated %}<a href="{% url 'timeline' %}">Journal</a>{% if member.role == 'owner' %}<a href="{% url 'members' %}">Care team</a>{% endif %}{% endif %}<a href="{% url 'install' %}">Install</a>
 {% if user.is_authenticated %}<form action="{% url 'account_logout' %}" method="post">{% csrf_token %}<button class="text-button">Sign out</button></form>{% endif %}</nav></header>
 <main id="main">{% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}{% block content %}{% endblock %}</main>

@@ -2,6 +2,8 @@
 
 ## Implemented
 
+- Product renamed to Careloop across the app header, browser titles, PWA manifest, and public cache name. README reorganized around usage and setup, with detailed development/deployment guides under docs/. All 23 PostgreSQL/browser tests, Django checks, static collection, documentation link targets, and branding checks passed after the rename.
+
 - Django 5.2.19 LTS, PostgreSQL, pinned dependencies, migrations, responsive templates, Docker/Compose, and deployment/recovery documentation.
 - Production Google admission: approved exact email, provider verification, subject binding, owner bootstrap, role/history/access controls, and per-request revocation.
 - Private author drafts, parent access to submitted entries, explicit audience review, comments, author-only edits, revisions, idempotent submission, version conflicts, and stale-draft protection.
