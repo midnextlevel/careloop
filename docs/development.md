@@ -24,7 +24,7 @@ In a separate terminal:
 
 Set `BROWSER_NODE` and `NODE_PATH` as described in the tests section to include Playwright in the suite. `tools/smoke_local.cjs` separately verifies the actual named login against the running app and writes one fictional home entry. `backup-verify` creates a timestamped dump in `.local/backups`, restores it into a unique throwaway database, checks migrations and Django configuration, and compares counts and a SHA-256 digest of all entries, memberships, revisions, comments, and users. The successful report is saved to `.local/restore-report.json`; only that throwaway database is then removed. Failed verification leaves it available for inspection.
 
-Local password login requires **both** `DEBUG=true` and `DEV_LOGIN_ENABLED=true`, accepts only explicitly marked development accounts, and is available only from loopback addresses. Nonlocal access is rejected; disabling the flag invalidates existing development sessions on their next request. Startup refuses to enable this login with `DEBUG=false`. Before deploying, set `DEV_LOGIN_ENABLED=false`; the named development account cannot sign in through Google. It can also be revoked using Care team. Native helpers deliberately refuse nonloopback or nondevelopment environments. This is a development server, not the Linux production deployment.
+Local password login requires **both** `DEBUG=true` and `DEV_LOGIN_ENABLED=true`, accepts only explicitly marked development accounts, and defaults to loopback addresses. Explicit private subnets in `DEV_LOGIN_NETWORKS` also allow phone testing. Connections outside those networks are rejected; disabling the flag invalidates existing development sessions on their next request. Startup refuses to enable this login with `DEBUG=false`. Before deploying, set `DEV_LOGIN_ENABLED=false`; the named development account cannot sign in through Google. It can also be revoked using Care team. Native helpers deliberately refuse nonloopback or nondevelopment environments. This is a development server, not the Linux production deployment.
 
 To create another fictional development owner interactively:
 
@@ -33,6 +33,23 @@ To create another fictional development owner interactively:
 ```
 
 The command prompts for a password and refuses to overwrite existing users. Keep `.env`, `.local` (including passwords/data/backups), and generated browser artifacts out of version control and shared files.
+
+## Test on a phone over Wi-Fi
+
+The phone and development computer must be on the same trusted local network. On the phone, `127.0.0.1` refers to the phone itself.
+
+1. Find the computer's LAN address (for example, `192.168.1.50`) and subnet (`192.168.1.0/24`).
+2. Keep `DEBUG=true` and `DEV_LOGIN_ENABLED=true`. Add that subnet as `DEV_LOGIN_NETWORKS=192.168.1.0/24` in the untracked `.env`.
+3. Add the computer's IP to `ALLOWED_HOSTS`, and `http://192.168.1.50:8000` to `CSRF_TRUSTED_ORIGINS`.
+4. Run `.\.venv\Scripts\python.exe tools\local.py manage runserver 0.0.0.0:8000 --noreload`.
+5. Allow inbound TCP port 8000 in Windows Firewall only on the Private profile, scoped to the LAN subnet. Leave PostgreSQL on loopback.
+6. Open `http://192.168.1.50:8000` on the phone and sign in with the existing test account.
+
+Use your actual LAN address and subnet, not the examples above. This machine is currently configured as `192.168.99.95` on `192.168.99.0/24`. Its firewall rule is named `Careloop-Development-LAN`. If DHCP changes the computer's address, update the allowed hosts, origin, and firewall rule. Guest Wi-Fi, client isolation, or a VPN can prevent devices from reaching each other.
+
+Login and every development session request check the direct client IP; forwarded headers cannot grant access. Clearing `DEV_LOGIN_NETWORKS` returns login to loopback-only access. After phone testing, stop the LAN-bound server, return to the loopback command above, and disable the firewall rule from an administrator terminal with `Disable-NetFirewallRule -Name Careloop-Development-LAN`.
+
+This HTTP setup is for fictional development data. HTTPS is needed for normal phone PWA installation, service workers, and production use. Never port-forward this development server to the internet.
 
 ## Tests and checks
 
@@ -82,4 +99,4 @@ Optional browser test uses Node.js, Playwright, and installed Chrome. Install Pl
 
 ## Architecture
 
-`journal/policies.py` centralizes visibility and author/owner policies; every entry/comment endpoint applies them. `journal/middleware.py` checks active membership on every authenticated request and sets dynamic no-store headers. `journal/adapters.py` gates Google admission and binds identities transactionally. `journal/services.py` serializes writes with PostgreSQL row locks, version checks, and revision snapshots. Review tickets bind content, audience, author, entry, version, and retry token with Django signing. No Django admin is exposed. The explicitly enabled native development login is restricted to marked test accounts and loopback requests; production uses Google. `STATUS.md` tracks completed work and deployment acceptance checks.
+`journal/policies.py` centralizes visibility and author/owner policies; every entry/comment endpoint applies them. `journal/middleware.py` checks active membership on every authenticated request and sets dynamic no-store headers. `journal/adapters.py` gates Google admission and binds identities transactionally. `journal/services.py` serializes writes with PostgreSQL row locks, version checks, and revision snapshots. Review tickets bind content, audience, author, entry, version, and retry token with Django signing. No Django admin is exposed. The explicitly enabled native development login is restricted to marked test accounts and explicitly allowed development networks; production uses Google. `STATUS.md` tracks completed work and deployment acceptance checks.

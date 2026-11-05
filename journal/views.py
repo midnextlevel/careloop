@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from .forms import EntryForm, MemberForm
 from .models import Entry, Membership, Comment
-from .policies import can_edit, is_owner, membership_for, visible_entries
+from .policies import can_edit, development_access_allowed, is_owner, membership_for, visible_entries
 from .services import FIELDS, Conflict, write_entry
 
 
@@ -36,7 +36,7 @@ def login_page(request):
 
 
 def development_login(request):
-    if not (settings.DEBUG and settings.DEV_LOGIN_ENABLED and request.META.get('REMOTE_ADDR') in ('127.0.0.1', '::1')):
+    if not development_access_allowed(request):
         return HttpResponse(status=404)
     if request.method not in ('GET', 'POST'):
         return HttpResponse(status=405)

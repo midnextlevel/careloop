@@ -9,7 +9,7 @@ from journal.models import Membership
 
 
 class Command(BaseCommand):
-    help = 'Create a named fictional owner for loopback-only development login.'
+    help = 'Create a named fictional owner for explicitly enabled local development login.'
 
     def add_arguments(self, parser):
         parser.add_argument('username')
@@ -42,4 +42,4 @@ class Command(BaseCommand):
             raise CommandError('A membership already uses this development email.')
         user = get_user_model().objects.create_user(username=username, email=email, password=password, first_name=name)
         Membership.objects.create(email=email, user=user, role='owner', is_development=True)
-        self.stdout.write(self.style.SUCCESS(f'Created development owner {username}. Login is loopback-only.'))
+        self.stdout.write(self.style.SUCCESS(f'Created development owner {username}. Login is restricted to configured development networks.'))

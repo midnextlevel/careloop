@@ -1,4 +1,5 @@
 import os
+from ipaddress import ip_network
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 
@@ -8,6 +9,13 @@ TESTING = os.getenv('JOURNAL_TESTING') == '1'
 DEV_LOGIN_ENABLED = os.getenv('DEV_LOGIN_ENABLED', 'false').lower() == 'true'
 if DEV_LOGIN_ENABLED and not DEBUG:
     raise ImproperlyConfigured('DEV_LOGIN_ENABLED requires DEBUG=true. Disable it for production.')
+try:
+    DEV_LOGIN_NETWORKS = tuple(ip_network(value.strip()) for value in
+                              os.getenv('DEV_LOGIN_NETWORKS', '').split(',') if value.strip())
+except ValueError as exc:
+    raise ImproperlyConfigured('DEV_LOGIN_NETWORKS must contain valid CIDR subnets.') from exc
+if any(not network.is_private for network in DEV_LOGIN_NETWORKS):
+    raise ImproperlyConfigured('DEV_LOGIN_NETWORKS must be private networks, never public ranges.')
 SECRET_KEY = os.getenv('SECRET_KEY', '')
 if not SECRET_KEY:
     if TESTING:

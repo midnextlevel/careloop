@@ -1,6 +1,18 @@
 from django.db.models import Q
+from ipaddress import ip_address
 from django.conf import settings
 from .models import Entry, Membership
+
+
+def development_access_allowed(request):
+    if not (settings.DEBUG and settings.DEV_LOGIN_ENABLED):
+        return False
+    try:
+        address = ip_address(request.META.get('REMOTE_ADDR', ''))
+    except ValueError:
+        return False
+    # Trust the direct connection only, never a client-supplied forwarded address.
+    return address.is_loopback or any(address in network for network in settings.DEV_LOGIN_NETWORKS)
 
 
 def membership_for(user):

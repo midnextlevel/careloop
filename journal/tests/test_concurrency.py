@@ -3,7 +3,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from unittest.mock import patch
-from django.db import close_old_connections
+from django.db import close_old_connections, connections
 from django.test import Client, TransactionTestCase, skipUnlessDBFeature
 from django.utils import timezone
 from journal.forms import MemberForm
@@ -34,7 +34,7 @@ class ConcurrentWriteTests(TransactionTestCase):
                 except Conflict:
                     return 'conflict'
             finally:
-                close_old_connections()
+                connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:
             return list(pool.map(writer, [1, 2]))
 
@@ -78,7 +78,7 @@ class ConcurrentOwnerTests(TransactionTestCase):
                             data['active'] = 'on'
                         return clients[index].post(f'/team/{target.pk}/', data).status_code
                     finally:
-                        close_old_connections()
+                        connections.close_all()
 
                 with patch.object(MemberForm, 'is_valid', validated), ThreadPoolExecutor(max_workers=2) as pool:
                     results = list(pool.map(update_other, (0, 1)))

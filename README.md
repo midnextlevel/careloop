@@ -44,7 +44,7 @@ If the local services have stopped, run these commands from the project folder i
 .\.venv\Scripts\python.exe tools\local.py manage runserver 127.0.0.1:8000 --noreload
 ```
 
-See the [development guide](docs/development.md) for local accounts, testing, and backup verification.
+See the [development guide](docs/development.md) for local accounts, [phone testing over Wi-Fi](docs/development.md#test-on-a-phone-over-wi-fi), and backup verification.
 
 ## Quick start with Docker
 
@@ -98,7 +98,7 @@ The tests use a separate database. Browser tests require optional Playwright con
 
 ## Current status
 
-The last full PostgreSQL run passed **27 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **30 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 

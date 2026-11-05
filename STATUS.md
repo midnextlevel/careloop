@@ -8,19 +8,19 @@
 - Production Google admission: approved exact email, provider verification, subject binding, owner bootstrap, role/history/access controls, and per-request revocation.
 - Private author drafts, parent access to submitted entries, explicit audience review, comments, author-only edits, revisions, idempotent submission, version conflicts, and stale-draft protection.
 - PWA manifest/icons/install help, explicit public-only cache, dynamic no-store headers, no HTMX history snapshots, memory-only unsaved text.
-- User explicitly authorized local development username/password login after the original milestone. Added marked development accounts, opt-in configuration, loopback-only login, production startup guard, and existing-session invalidation when disabled. Production remains Google-only.
+- User explicitly authorized local development username/password login after the original milestone. Added marked development accounts, opt-in configuration, loopback-default login with explicit private-LAN opt-in, production startup guard, and existing-session invalidation when disabled. Production remains Google-only.
 
 ## Running local setup
 
 - Native PostgreSQL 17.11 from EDB's official binary archive is running on 127.0.0.1:55432 with SCRAM authentication. Binaries/data/backups live under ignored .local; no system service or public DB port was created.
-- Native Django development server running at http://127.0.0.1:8000. Sign in at /development/login/ as test-parent (display name Test Parent). Generated password: ignored .local/development-account.txt. Secrets were generated in ignored .env without printing values.
+- Native Django development server now listens on 0.0.0.0:8000 for user-requested phone testing. Desktop URL http://127.0.0.1:8000; same-LAN phone URL http://192.168.99.95:8000. DEV_LOGIN_NETWORKS is explicitly 192.168.99.0/24 in untracked .env. A Private-profile firewall rule allows only that subnet to this LAN IP on TCP 8000. Server restarted with network-enabled execution permission; the execution sandbox previously blocked incoming LAN connections. LAN URL returns HTTP 200 from the PC; user confirmed the app now opens on their phone. Sign in at /development/login/ as test-parent (display name Test Parent). Generated password: ignored .local/development-account.txt. Secrets were generated in ignored .env without printing values.
 - Both migrations applied to persistent PostgreSQL. Three disabled fictional sample identities/entries seeded; real-server browser smoke created one additional fictional home entry.
 - Restart/management commands are in README's native-development section. Compose overrides the native DB host/port for its container database.
 
 ## Actual verification
 
-- Latest run: 27 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
-- Development tests cover named login, disabled-mode sessions, revoked accounts, nonlocal clients, Google-account exclusion, and production denial.
+- Latest run: 30 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
+- Development tests cover named login, explicitly allowed LAN clients, denied out-of-subnet sessions, forwarded-header spoofing, disabled-mode sessions, revoked accounts, Google-account exclusion, and production denial. The full 30-test run completed with clean test-database teardown after fixing worker threads to explicitly close persistent connections.
 - Separate real-server Chrome smoke passed actual named password login, owner controls, draft save, audience review, submit, named authorship, mobile layout, logout, and anonymous-entry denial. Screenshot test-results/named-account-timeline.png visually inspected.
 - Browser suite also verified reload persistence, offline failed saves with retained text, reconnect/retry, comments, revisions, public-only cache contents, generic offline navigation, and no JavaScript errors.
 - Actual PostgreSQL backup/restore verified into a unique throwaway DB: migration/Django checks passed; record counts and SHA-256 digests of entries, memberships, revisions, comments, and users matched exactly. Dump: .local/backups; report: .local/restore-report.json. Verification DB removed; original DB unchanged.

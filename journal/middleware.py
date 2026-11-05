@@ -1,6 +1,6 @@
 from django.contrib.auth import logout
 from django.http import HttpResponse
-from .policies import membership_for
+from .policies import development_access_allowed, membership_for
 
 
 class MembershipMiddleware:
@@ -9,7 +9,7 @@ class MembershipMiddleware:
 
     def __call__(self, request):
         request.membership = membership_for(request.user)
-        if request.membership and request.membership.is_development and request.META.get('REMOTE_ADDR') not in ('127.0.0.1', '::1'):
+        if request.membership and request.membership.is_development and not development_access_allowed(request):
             request.membership = None
         if request.user.is_authenticated and request.membership is None:
             logout(request)
