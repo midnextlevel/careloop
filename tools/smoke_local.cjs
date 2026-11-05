@@ -14,8 +14,14 @@ const assert = require('node:assert/strict');
     await page.getByLabel('Password').fill(password);
     await page.getByRole('button',{name:'Sign in to test'}).click();
     await page.getByRole('heading',{name:'Day by day'}).waitFor();
+    await page.getByRole('button',{name:'Menu', exact:true}).click();
     await page.getByRole('link',{name:'Care team', exact:true}).waitFor();
+    await page.keyboard.press('Escape');
     assert.equal(await page.getByRole('button',{name:'Write an entry'}).count(),1);
+    if (!await page.getByRole('link',{name:'Read entry'}).count()) {
+      await page.locator('[data-dialog-open="date-dialog"]').click();
+      await page.getByRole('link',{name:'Show all dates'}).click();
+    }
     await page.getByRole('link',{name:'Read entry'}).first().click();
     const entryUrl = page.url();
     await page.getByRole('link',{name:'Back to journal'}).click();
@@ -24,6 +30,7 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
     fs.mkdirSync('test-results',{recursive:true});
     await page.screenshot({path:'test-results/named-account-timeline.png',fullPage:true});
+    await page.getByRole('button',{name:'Menu', exact:true}).click();
     await page.getByRole('button',{name:'Sign out'}).click();
     await page.getByRole('heading',{name:'Welcome to the journal'}).waitFor();
     await page.goto(entryUrl);

@@ -1,6 +1,6 @@
 // An explicit public allowlist. NEVER runtime-cache navigation or private responses.
-const CACHE = 'careloop-public-v3';
-const PUBLIC_ASSETS = ['/static/app.css', '/static/app.js', '/static/theme.js', '/static/offline.html', '/static/icon-192.png', '/static/icon-512.png'];
+const CACHE = 'careloop-public-v4';
+const PUBLIC_ASSETS = ['/static/app.css', '/static/app.js', '/static/theme.js', '/static/offline.html', '/static/icon-192.png', '/static/icon-512.png', '/static/careloop-logo.webp'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PUBLIC_ASSETS)).then(() => self.skipWaiting()));
 });

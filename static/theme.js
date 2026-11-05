@@ -10,7 +10,8 @@
     const toggle = document.querySelector('[data-theme-toggle]');
     if (toggle) {
       toggle.hidden = false;
-      toggle.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+      toggle.textContent = theme === 'dark' ? '☼' : '☾';
+      toggle.title = theme === 'dark' ? 'Use light mode' : 'Use dark mode';
       toggle.setAttribute('aria-label', theme === 'dark' ? 'Use light mode' : 'Use dark mode');
       toggle.setAttribute('aria-pressed', String(theme === 'dark'));
     }

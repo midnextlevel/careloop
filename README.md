@@ -14,7 +14,7 @@ Parents, teachers, and therapists can log observations, save private drafts, and
 - Revise your own entries while preserving previous submitted versions.
 - Approve care-team members, assign roles, and revoke access as the owner.
 - Switch between light and dark mode; your device preference is used initially.
-- Install Careloop on a phone's home screen.
+- Install Careloop on a phone's home screen, using the supplied heart-and-infinity logo.
 
 Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a small amount of JavaScript. It needs an internet connection; private entries are never cached for offline reading. Times are displayed in Asia/Manila.
 
@@ -42,7 +42,7 @@ These limits are enforced in the form and on the server. Existing records keep t
 
 ## Control access as the owner
 
-Open **Data access** and either choose a fixed deadline with the date picker or leave it blank and set a number of days after submission (30 by default). Access expires for teachers and therapists, including their own submitted entries; owner access remains available. Changing these settings affects existing and new entries on the next request.
+Open **Menu → Data access** and either choose a fixed deadline with the date picker or leave it blank and set a number of days after submission (30 by default). Access expires for teachers and therapists, including their own submitted entries; owner access remains available. Changing these settings affects existing and new entries on the next request.
 
 To restore or close access to a particular entry, open it as owner and use its **Data access** panel. Set a new deadline, choose **Hide now**, or clear the deadline to use the journal-wide setting. Entry-specific deadlines take precedence over the global deadline. Audience and membership history restrictions still apply, and editing an entry does not restart its original submission clock.
 
@@ -52,7 +52,7 @@ To restore or close access to a particular entry, open it as owner and use its *
 2. Open the entry and choose **Edit your entry**. Only its author can revise it.
 3. Make the changes, review the audience, and submit. The previous submitted version is preserved.
 
-To add an entry for a missed day, select that date and choose **Write an entry**. The event date is filled in for you. **Show all dates** returns to the full timeline. Open **Drafts** to see your private drafts for that day. **Access info** explains the active expiry rule in a dialog; it is informational, not an account error. Entry-specific owner access controls also open in a dialog. The same privacy and history-access rules apply.
+To add an entry for a missed day, select that date and choose **Write an entry**. The event date is filled in for you. **Show all dates**, inside the date picker, returns to the full timeline. Open **Drafts** to see your private drafts for that day. **Menu → Access info** explains the active expiry rule in a dialog; it is informational, not an account error. Entry-specific owner access controls also open in a dialog. The same privacy and history-access rules apply.
 
 ## Try the existing local setup
 

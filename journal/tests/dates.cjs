@@ -44,6 +44,7 @@ const fs = require('node:fs');
     await page.getByLabel('Find a date').fill('2020-01-01');
     await page.getByRole('button', {name:'Go to date'}).click();
     await page.getByRole('heading', {name:'No submitted entries for this date'}).waitFor();
+    await page.locator('[data-dialog-open="date-dialog"]').click();
     await page.getByRole('link', {name:'Show all dates'}).click();
     await page.getByRole('link', {name:'Earlier classroom note, revised.', exact:true}).waitFor();
   } finally { await browser.close(); }

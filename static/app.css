@@ -19,3 +19,85 @@ main{min-height:0}
 @media(max-width:760px){button,.button,.icon-button{min-height:48px}.date-navigation{gap:12px;width:100%}.date-trigger{flex:1}.icon-button{min-width:48px}.toolbar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0;width:100%}.toolbar-actions>a,.toolbar-actions button{padding:8px;min-height:44px;border:1px solid var(--line);border-radius:6px;text-decoration:none;gap:6px}.form-section{padding:18px 16px}.form-section .form-row{gap:18px}.entry-editor textarea{font-size:16px}.editor-actions{align-items:stretch;gap:16px}.editor-actions .editor-buttons{width:100%;display:grid;grid-template-columns:1fr;gap:14px}.editor-actions .editor-buttons button{width:100%;margin:0}.submission-actions{display:grid;grid-template-columns:1fr;gap:14px}.submission-actions>button{width:100%}.dialog-actions{gap:14px}.top nav{gap:8px 12px}}
 
 .photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}.photo-grid img{display:block;width:100%;height:auto;max-height:300px;object-fit:contain;border-radius:8px;background:var(--field-bg);border:1px solid var(--line)}.photo-grid:empty{display:none}.photo-remove{display:flex;align-items:center;gap:10px;min-height:48px;font-size:13px}.photo-remove input{width:22px;height:22px}.entry-editor input[type=file]{max-width:100%;padding:12px 4px;font-size:13px}input[type=file]::file-selector-button{font:inherit;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--field-bg);color:var(--ink);margin-right:10px}
+
+/* Phone navigation: fewer visible actions, with comfortable touch targets. */
+.top{gap:16px;flex-wrap:nowrap;min-height:76px}
+.brand{display:inline-flex;align-items:center;gap:10px;padding:0;min-width:0;flex-shrink:0}
+.brand-logo{display:block;width:44px;height:44px;object-fit:contain}
+.brand-sub{font-size:9px}
+.header-actions{display:flex;align-items:center;gap:12px}
+.header-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px}
+.header-actions .theme-toggle{width:44px;min-width:44px;padding:0;font:26px/1 system-ui}
+.header-actions .theme-toggle[hidden]{display:none}
+.menu-trigger{gap:8px;font-size:14px}
+.menu-links{display:flex;align-items:stretch;flex-direction:column;gap:10px;font-size:16px}
+.menu-links>a,.menu-links>button,.menu-links form button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--line);border-radius:7px;text-decoration:none;background:var(--field-bg);color:var(--ink);font-weight:500;text-align:left}
+.menu-links form{border-top:1px solid var(--line);margin-top:6px;padding-top:16px}
+.fallback-nav{padding:12px 18px;flex-wrap:wrap}
+.timeline-toolbar{flex-wrap:nowrap;gap:16px;padding:12px 0}
+.date-navigation{width:auto;flex:0 1 400px;min-width:0;gap:12px}
+.date-trigger{font-size:14px;flex:1;min-width:0;white-space:nowrap}
+.toolbar-actions{display:flex;width:auto;gap:12px;margin:0}
+.toolbar-actions button{gap:6px;white-space:nowrap}
+.all-dates-link{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:12px 0 0;margin-top:16px;border-top:1px solid var(--line);font-size:14px;text-decoration:none}
+.dialog-heading .text-button{width:44px;min-width:44px;min-height:44px;padding:6px}
+.entry-footer .read-link{display:inline-flex;align-items:center;min-height:44px;padding:6px 0 6px 12px}
+.entry-card h3 a{display:block;min-height:44px}
+.back{display:inline-flex;align-items:center;min-height:44px;margin-bottom:8px}
+.entry-editor .form-row>div{min-width:0}
+.entry-editor input[type=date]{min-width:0;max-width:100%}
+.entry-editor .editor-actions{position:sticky;bottom:12px;z-index:2;box-shadow:0 4px 24px #0002}
+.entry-editor textarea{scroll-margin-bottom:160px}
+.follow-up-section summary{min-height:44px;line-height:44px}
+@media(max-width:760px){
+ .top{padding:10px 16px;gap:12px;min-height:72px}
+ .brand{font-size:22px;gap:8px}
+ .brand-logo{width:40px;height:40px}
+ .header-actions{gap:10px}
+ .menu-trigger{font-size:13px}
+ main{margin:16px auto 28px;padding:0 16px}
+ .timeline-heading{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+ .timeline-heading h1{font-size:27px;line-height:1.15;margin:4px 0}
+ .timeline-heading .role-label{display:block;margin:4px 0 0;font:12px/1.4 system-ui}
+ .timeline-heading .eyebrow{font-size:10px;letter-spacing:1.2px}
+ .timeline-heading p{display:none}
+ .timeline-heading form{align-self:center;flex-shrink:0}
+ .timeline-heading form .primary{width:auto;min-height:48px;font-size:14px;padding:10px 12px}
+ .timeline-toolbar{gap:12px;padding:10px 0;margin-bottom:14px}
+ .date-navigation{flex:1;gap:8px}
+ .icon-button{min-width:44px;width:44px;min-height:44px}
+ .date-trigger{padding:8px;font-size:13px;min-height:44px}
+ .toolbar-actions button{font-size:12px;padding:8px 10px;min-height:44px}
+ .date-trigger span{display:none}
+ .ui-dialog{padding:20px;max-height:85dvh}
+ .page-heading{gap:12px;margin-bottom:20px}
+ .page-heading h1{font-size:30px;margin:4px 0 8px}
+ .page-heading p{font-size:14px}
+ .form-section{padding:14px;margin-bottom:18px}
+ .form-section .form-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+ .entry-editor input,.entry-editor select{padding:10px 8px;font-size:16px}
+ .entry-editor textarea{min-height:96px;padding:10px;font-size:16px;line-height:1.5}
+ .entry-editor .field{margin-bottom:16px}
+ .entry-editor .help{line-height:1.5}
+ .entry-editor .editor-actions{padding:12px;gap:10px;bottom:8px}
+ .editor-actions .editor-buttons{display:grid;grid-template-columns:1fr 1.25fr;gap:12px}
+ .editor-actions .editor-buttons button{min-width:0;min-height:48px;padding:10px 8px;font-size:14px;white-space:normal}
+ .save-feedback .help{display:none}
+ .save-feedback #save-status{font-size:12px;margin:0;line-height:1.4}
+ .follow-up-section{padding:6px 14px}
+ .follow-up-section .field{padding-top:8px}
+ .entry-footer{align-items:center}
+ .entry-footer .muted{max-width:65%}
+ .compact-empty{padding:22px 18px}
+ .compact-empty h2{font-size:21px}
+}
+@media(max-width:360px){
+ .top{padding-inline:12px;gap:8px}
+ .brand{font-size:20px;gap:6px}
+ .header-actions{gap:8px}
+ .header-actions .menu-trigger{padding:8px}
+ .timeline-heading form .primary{font-size:13px;padding-inline:10px}
+ .timeline-toolbar{flex-wrap:wrap}
+ .date-navigation{flex-basis:100%}
+ .toolbar-actions{margin-left:auto}
+}
