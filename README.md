@@ -98,9 +98,9 @@ The tests use a separate database. Browser tests require optional Playwright con
 
 ## Current status
 
-The last full PostgreSQL run passed **23 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **27 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
-Three reproduced review findings still need fixes: history timestamps can be rounded earlier during membership edits, concurrent owner changes can leave no owner, and returning to edit during a pending submission can discard newer text. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
+The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 
 ## Deployment and maintenance
 

@@ -31,12 +31,20 @@ if (editor) {
         editor.after(review);
         review.scrollIntoView({block:'start'});
         const back = review.querySelector('[data-go-back]');
-        back.addEventListener('click', () => { review.remove(); editor.hidden = false; status.textContent = 'Unsaved changes — review again before submitting.'; });
+        back.addEventListener('click', () => {
+          if (saving) return;
+          review.remove();
+          editor.hidden = false;
+          status.textContent = 'Unsaved changes — review again before submitting.';
+        });
         const confirmForm = review.querySelector('form');
         confirmForm.addEventListener('submit', async confirmEvent => {
           confirmEvent.preventDefault();
+          if (saving) return;
+          saving = true;
           const button = confirmForm.querySelector('button');
           button.disabled = true;
+          back.disabled = true;
           let feedback = review.querySelector('[data-feedback]');
           if (!feedback) { feedback = document.createElement('p'); feedback.dataset.feedback = ''; feedback.setAttribute('role','status'); confirmForm.append(feedback); }
           feedback.textContent = 'Submitting…';
@@ -51,7 +59,14 @@ if (editor) {
             location.assign(result.url);
           } catch (error) {
             feedback.textContent = `${error.message} Your text remains in this open page. You can retry this confirmation safely.`;
-          } finally { clearTimeout(submitTimeout); button.disabled = false; }
+          } finally {
+            clearTimeout(submitTimeout);
+            if (!navigating) {
+              saving = false;
+              button.disabled = false;
+              back.disabled = false;
+            }
+          }
         });
       } catch (error) {
         status.textContent = `Review failed. ${error.message} Your text remains in this open page.`;

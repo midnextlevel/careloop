@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from .forms import EntryForm, MemberForm
 from .models import Entry, Membership, Comment
-from .policies import can_edit, is_owner, visible_entries
+from .policies import can_edit, is_owner, membership_for, visible_entries
 from .services import FIELDS, Conflict, write_entry
 
 
@@ -161,8 +161,11 @@ def members(request, pk=None):
     form = MemberForm(request.POST or None, instance=target)
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
-            # Serialize owner changes to prevent simultaneous removal of all owners.
+            # Serialize changes and recheck the actor after any competing update.
             list(Membership.objects.select_for_update().order_by('pk'))
+            request.membership = membership_for(request.user)
+            if not is_owner(request.membership):
+                raise PermissionDenied
             updated = form.save(commit=False)
             if target and target.pk == request.membership.pk and (not updated.active or updated.role != Membership.Role.OWNER):
                 form.add_error(None, 'You cannot revoke or demote your own membership. Ask another owner.')
@@ -171,7 +174,8 @@ def members(request, pk=None):
                     updated.joined_at = timezone.now()
                     if not form.cleaned_data.get('history_start'):
                         updated.history_start = updated.joined_at
-                updated.save()
+                # Existing forms may predate a first Google login; preserve identity bindings.
+                updated.save(update_fields=['role', 'active', 'history_start'] if target else None)
                 messages.success(request, 'Membership updated. Changes apply on the next request.')
                 return redirect('members')
     return render(request, 'journal/members.html', {'form': form, 'target': target, 'memberships': Membership.objects.order_by('email')})

@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Entry, Membership
 
 
@@ -31,3 +32,14 @@ class MemberForm(forms.ModelForm):
         if self.instance.pk and email != self.instance.email:
             raise forms.ValidationError('Email identities cannot be renamed. Revoke and approve a new membership.')
         return email
+
+    def clean_history_start(self):
+        value = self.cleaned_data.get('history_start')
+        if self.instance.pk and value is not None:
+            original = self.instance.history_start
+            # Browsers post the displayed minute, not the stored seconds/microseconds.
+            # Keeping that displayed value means no deliberate history adjustment.
+            displayed = timezone.localtime(original).replace(second=0, microsecond=0)
+            if value == displayed:
+                return original
+        return value

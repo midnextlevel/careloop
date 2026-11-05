@@ -19,7 +19,7 @@
 
 ## Actual verification
 
-- 23 tests passed against PostgreSQL, zero skipped, including real headless Chrome and simultaneous duplicate/conflicting writes. Log: test-results/postgres-tests.txt (ignored).
+- Latest run: 27 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
 - Development tests cover named login, disabled-mode sessions, revoked accounts, nonlocal clients, Google-account exclusion, and production denial.
 - Separate real-server Chrome smoke passed actual named password login, owner controls, draft save, audience review, submit, named authorship, mobile layout, logout, and anonymous-entry denial. Screenshot test-results/named-account-timeline.png visually inspected.
 - Browser suite also verified reload persistence, offline failed saves with retained text, reconnect/retry, comments, revisions, public-only cache contents, generic offline navigation, and no JavaScript errors.
@@ -27,15 +27,18 @@
 - Django checks, migration-drift check, Python compilation, static collection, and dependency check passed. Earlier SQLite-only results are superseded by PostgreSQL verification.
 - Prior production-style check --deploy: no errors, two documented HSTS subdomain/preload warnings. Proxy behavior still needs the target environment.
 
+## Review fixes
+
+- All three review findings are fixed:
+  - Unchanged displayed history-start values retain stored seconds/microseconds; role changes preserve historical denial, and deliberate history changes still work.
+  - Membership updates recheck the acting owner's current authority under the row locks. Simultaneous demotion/revocation tests confirm one succeeds, the stale request is denied, and an authorized owner remains. Updates also preserve identity bindings established by a concurrent first Google login.
+  - Confirming submission disables Back to edit and duplicate confirmation until success or failure. Browser regression covers delayed success and failed requests, restoring editing with the original text retained after failure.
+- Regression tests were first run against the previous code and reproduced all three failures, then passed after fixes. Tests live in journal/tests/test_membership.py, test_concurrency.py, test_browser.py, and submission.cjs. Earlier ignored review reproduction scripts describe the pre-fix behavior.
+
 ## Pending
 
 - Google credentials/real owner Google email remain unconfigured. Actual OAuth is unverified; provider tests use mocked identities. Named-account testing exercises the separately authorized development login.
 - Docker and WSL are absent. Compose image build/startup and Linux Gunicorn remain unverified. Local PostgreSQL and backup/restore checks are complete.
 - Linux VM/domain/proxy, HTTPS behavior, secure cookies, off-machine backup storage, and physical iPhone/Android installation need deployment configuration.
 - Before production: DEV_LOGIN_ENABLED=false, DEBUG=false, real Google credentials/secrets, correct host/CSRF/proxy settings, and deployment acceptance checks. Do not use the development server or credentials for real child records.
-- Review reran all 23 PostgreSQL tests successfully. Three additional isolated reproductions confirmed uncovered defects (application fixes pending):
-  - Existing-member datetime input truncates history-start seconds; a role-only update unintentionally made a previously denied entry readable (404 to 200).
-  - Two concurrent owners can demote each other, leaving zero active owners despite the row locks.
-  - Back to edit remains enabled during submission; typing new text before the pending submission redirects causes that newer text to disappear.
-- Reproduction scripts are under ignored .local/review_cases.py and .local/review_browser.cjs. They use a separate Django test database and fictional identities.
 - Draft saving is explicit; history starts at approval; old versions remain limited to parent and author.
