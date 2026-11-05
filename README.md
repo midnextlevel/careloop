@@ -37,11 +37,11 @@ To restore or close access to a particular entry, open it as owner and use its *
 
 ## Find or revise an earlier day
 
-1. On the journal, choose **Find a date**, then **Go to date**.
+1. The journal opens on **today** (Asia/Manila). Tap the date in the compact toolbar, choose another day, and select **Go to date**. Previous/next arrows move one day at a time.
 2. Open the entry and choose **Edit your entry**. Only its author can revise it.
 3. Make the changes, review the audience, and submit. The previous submitted version is preserved.
 
-To add an entry for a missed day, select that date and choose **Write an entry**. The event date is filled in for you. **Show all dates** returns to the full timeline. The date filter also shows your drafts for that day, with the same privacy and history-access rules.
+To add an entry for a missed day, select that date and choose **Write an entry**. The event date is filled in for you. **Show all dates** returns to the full timeline. Open **Drafts** to see your private drafts for that day. **Access info** explains the active expiry rule in a dialog; it is informational, not an account error. Entry-specific owner access controls also open in a dialog. The same privacy and history-access rules apply.
 
 ## Try the existing local setup
 
@@ -114,7 +114,7 @@ The tests use a separate database. Browser tests require optional Playwright con
 
 ## Current status
 
-The last full PostgreSQL run passed **51 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **52 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 

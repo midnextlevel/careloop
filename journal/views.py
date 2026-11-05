@@ -61,12 +61,14 @@ def development_login(request):
 def timeline(request):
     entries = visible_entries(request.membership).filter(submitted_at__isnull=False).select_related('author')
     drafts = Entry.objects.filter(author=request.user, submitted_at__isnull=True)
-    date_form = TimelineDateForm(request.GET if request.GET else None)
-    selected_date = None
+    today = timezone.localdate()
+    selected_date = None if request.GET.get('all') == '1' and 'date' not in request.GET else today
+    date_form = TimelineDateForm(request.GET if 'date' in request.GET else None,
+                                 initial={'date': selected_date or today})
     status = 200
     if date_form.is_bound:
         if date_form.is_valid():
-            selected_date = date_form.cleaned_data['date']
+            selected_date = date_form.cleaned_data['date'] or today
         else:
             status = 400
     if selected_date:
@@ -74,6 +76,9 @@ def timeline(request):
         drafts = drafts.filter(event_date=selected_date)
     return render(request, 'journal/timeline.html', {'entries': entries, 'drafts': drafts,
         'date_form': date_form, 'selected_date': selected_date,
+        'today': today, 'date_error': status == 400,
+        'previous_date': selected_date - timedelta(days=1) if selected_date and selected_date > today.min else None,
+        'next_date': selected_date + timedelta(days=1) if selected_date and selected_date < today.max else None,
         'access_policy': JournalAccessSettings.current()}, status=status)
 
 

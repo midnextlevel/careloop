@@ -2,6 +2,9 @@
 
 ## Implemented
 
+- Compact UI revision: smaller shared header/typography/card spacing, a full-width timeline without the oversized sidebar, inline entry footers, and a compact date toolbar. Homepage defaults to the current Asia/Manila date; explicit ?all=1 shows full history. Previous/next links, Today, and missed-day entry prefilling remain available.
+- Native modal dialogs added for date selection, author-only drafts, access information, and owner per-entry access settings. The persistent professional-access notice is now on-demand information, not a homepage warning. Dialogs support Escape, close buttons, backdrop dismissal, focus containment/restoration, and private content remains memory-only. Date filtering and draft links have noscript fallbacks.
+
 - Parent/owner workflow revised at user request: owners track submitted observations, comment, and manage access; entry creation and revision are blocked in the UI, views, and write policy. Teachers and therapists post School/Therapy entries with role-appropriate initial type and Care team selected by default. Tests verify normal new posts are readable by all three roles within access rules. Legacy submitted home/owner records are retained for reading; new seed runs create professional observations only.
 - Light/dark mode added across the shared app, with an accessible header toggle, initial system-preference detection, dark native form controls, and a one-year UI-only theme cookie. No private data is persisted client-side. Public theme.js added to the service-worker allowlist; cache name updated to v3.
 
@@ -28,7 +31,7 @@
 
 ## Actual verification
 
-- Latest run: 51 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
+- Latest run: 52 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
 - Development tests cover named login, explicitly allowed LAN clients, denied out-of-subnet sessions, forwarded-header spoofing, disabled-mode sessions, revoked accounts, Google-account exclusion, and production denial. The full 30-test run completed with clean test-database teardown after fixing worker threads to explicitly close persistent connections.
 - Separate real-server Chrome smoke passed actual named password login, owner controls, draft save, audience review, submit, named authorship, mobile layout, logout, and anonymous-entry denial. Screenshot test-results/named-account-timeline.png visually inspected.
 - Browser suite also verified reload persistence, offline failed saves with retained text, reconnect/retry, comments, revisions, public-only cache contents, generic offline navigation, and no JavaScript errors.
@@ -41,6 +44,8 @@
 - Access-control verification: all 47 tests passed against PostgreSQL, including the mobile owner deadline picker, both professional roles losing and regaining access, Hide now, author expiry, audience/history/revocation precedence, exact expiry boundary, direct/HTMX endpoint denial, and revision clock preservation. Actual named teacher/therapist logins verified against the running app; each saw shared fictional entries and was denied owner controls. Migration 0003 applied locally; no migration drift. Backup/restore content digests matched, now including JournalAccessSettings.
 
 - Current-role/theme verification: 51 PostgreSQL tests passed, including owner POST/edit/service denial, teacher/therapist defaults and three-member sharing, rejection of forged Home entries, dark-mode system defaults, toggling/reload persistence, dark form rendering, responsive width, no localStorage, and the expanded public-only static cache. Mobile dark-mode screenshot visually inspected. Actual named-owner smoke verified read-only tracking, access controls, dark mode, logout, and anonymous denial. No migrations required.
+
+- Compact UI verification: all 52 PostgreSQL tests passed, including date defaults/all-history behavior, mobile date-dialog selection and revision, drafts dialog, owner entry-access dialog, access-info Escape/focus restoration, dark/light themes, no horizontal overflow, and existing privacy/expiry/concurrency coverage. Mobile light/dark screenshots visually inspected. Static files collected and migration check passed; no schema changes.
 
 ## Review fixes
 

@@ -23,7 +23,7 @@ class TimelineDateTests(TestCase):
         self.assertContains(response, 'My dated draft')
         self.assertNotContains(response, 'Different event date')
         self.assertContains(response, 'Show all dates')
-        self.assertContains(self.client.get('/'), 'Different event date')
+        self.assertContains(self.client.get('/', {'all': '1'}), 'Different event date')
 
     def test_filter_preserves_audience_draft_and_history_permissions(self):
         Entry.objects.create(author=self.other, event_date=self.day, summary='Restricted note',
@@ -40,8 +40,19 @@ class TimelineDateTests(TestCase):
                 self.assertNotContains(response, hidden)
             self.assertIn('no-store', response['Cache-Control'])
 
+    def test_home_defaults_to_manila_today_and_all_dates_is_explicit(self):
+        Entry.objects.create(author=self.user, event_date=timezone.localdate(),
+                             summary='Today observation', submitted_at=timezone.now())
+        response = self.client.get('/')
+        self.assertEqual(response.context['selected_date'], timezone.localdate())
+        self.assertContains(response, 'Today observation')
+        self.assertNotContains(response, 'Own earlier event')
+        response = self.client.get('/', {'all': '1'})
+        self.assertIsNone(response.context['selected_date'])
+        self.assertContains(response, 'Own earlier event')
+
     def test_missing_date_and_empty_day(self):
-        self.assertContains(self.client.get('/', {'date': ''}), 'Own earlier event')
+        self.assertNotContains(self.client.get('/', {'date': ''}), 'Own earlier event')
         response = self.client.get('/', {'date': '2020-01-01'})
         self.assertContains(response, 'No submitted entries for this date')
         self.assertNotContains(response, 'My dated draft')

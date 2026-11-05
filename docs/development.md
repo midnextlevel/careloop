@@ -87,7 +87,7 @@ Optional browser test uses Node.js, Playwright, and installed Chrome. Install Pl
 
 ## Journal behavior
 
-Use Find a date → Go to date to filter by event date (not submission time). Entries and the author’s drafts are filtered together. Show all dates clears the filter. Write an entry uses the selected date, so missed days can be recorded later. To revise, open an entry and use Edit your entry; authorship, audience, history, conflict, and revision rules still apply.
+The homepage defaults to today in Asia/Manila. Tap the compact date button → choose a day → Go to date to filter by event date (not submission time). Previous/next links move one day; Show all dates uses ?all=1. Entries and the author’s drafts are filtered together. Drafts are listed in a private dialog, and Access info explains the current expiry policy on demand. Native dialogs support focus containment, Escape dismissal, explicit close controls, and trigger-focus restoration. The date form and draft links have a noscript fallback. Write an entry uses the selected date, so missed days can be recorded later. To revise, open an entry and use Edit your entry; authorship, audience, history, conflict, and revision rules still apply.
 
 - Sign in → Write an entry → Save draft when useful → Review audience → Confirm & submit.
 - New school and therapy entries have an event date, summary, observations, what helped, and optional follow-up. A nonempty summary is required to submit. Each text field is limited to 10,000 characters; comments to 5,000.

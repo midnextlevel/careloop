@@ -1,3 +1,14 @@
+// Native dialogs keep focus inside the modal, support Escape, and restore trigger focus.
+document.addEventListener('click', event => {
+  const trigger = event.target.closest('[data-dialog-open]');
+  if (trigger) document.getElementById(trigger.dataset.dialogOpen)?.showModal();
+  if (event.target.closest('[data-dialog-close]')) event.target.closest('dialog')?.close();
+  if (event.target instanceof HTMLDialogElement) {
+    const rect = event.target.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close();
+  }
+});
+document.querySelector('[data-open-on-load]')?.showModal();
 // Private text stays solely in the current DOM. No client-side persistence.
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 document.querySelector('[data-go-back]')?.addEventListener('click', () => history.back());
