@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}Set up Careloop{% endblock %}{% block content %}
+<section class="card reading"><span class="eyebrow">WELCOME TO CARELOOP · STEP {% if team_step %}2{% else %}1{% endif %} OF 2</span>
+{% if team_step %}<h1>Your care team</h1><p>Teachers can add their school and therapists can add their therapy center in My profile. You can also update these details in Care team.</p>
+{% for person in professionals %}<p><strong>{{ person.display_name|default:person.email }}</strong><br>{{ person.get_role_display }} · {{ person.organization|default:'Profile details not added yet' }}</p>{% empty %}<p>No professionals approved yet. You can add them now or after setup.</p>{% endfor %}
+<p><a class="button secondary" href="{% url 'members' %}">Manage care team</a></p><form method="post">{% csrf_token %}<input type="hidden" name="action" value="finish"><div class="dialog-actions"><button class="primary">Finish setup</button><a class="button secondary" href="{% url 'setup' %}">Back</a></div></form>
+{% else %}<h1>A journal for your child</h1><p>Choose the name you want to see in the journal. You can change it here later.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Continue to care team →</button></form>{% endif %}</section>{% endblock %}

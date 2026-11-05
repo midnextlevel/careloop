@@ -11,6 +11,8 @@ class JournalAccessSettings(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(3650)])
     expire_authors = models.BooleanField(default=True)
     access_until = models.DateTimeField(null=True, blank=True)
+    child_name = models.CharField(max_length=80, blank=True)
+    setup_completed = models.BooleanField(default=False)
 
     @classmethod
     def current(cls):
@@ -28,6 +30,8 @@ class Membership(models.Model):
     role = models.CharField(max_length=12, choices=Role.choices)
     active = models.BooleanField(default=True)
     is_development = models.BooleanField(default=False, editable=False)
+    display_name = models.CharField(max_length=100, blank=True)
+    organization = models.CharField(max_length=160, blank=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     google_subject = models.CharField(max_length=255, unique=True, null=True, blank=True)
     joined_at = models.DateTimeField(default=timezone.now)

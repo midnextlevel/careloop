@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
-from .forms import EntryForm, MemberForm, TimelineDateForm, JournalAccessForm, EntryAccessForm
+from .forms import EntryForm, MemberForm, TimelineDateForm, JournalAccessForm, EntryAccessForm, SetupForm, ProfileForm
 from .models import Entry, EntryPhoto, Membership, Comment, JournalAccessSettings
 from .policies import can_edit, can_post, development_access_allowed, is_owner, membership_for, visible_entries
 from .services import FIELDS, Conflict, write_entry
@@ -297,10 +297,55 @@ def members(request, pk=None):
                     if not form.cleaned_data.get('history_start'):
                         updated.history_start = updated.joined_at
                 # Existing forms may predate a first Google login; preserve identity bindings.
-                updated.save(update_fields=['role', 'active', 'history_start'] if target else None)
+                updated.save(update_fields=['role', 'active', 'history_start', 'display_name', 'organization'] if target else None)
                 messages.success(request, 'Membership updated. Changes apply on the next request.')
                 return redirect('members')
     return render(request, 'journal/members.html', {'form': form, 'target': target, 'memberships': Membership.objects.order_by('email')})
+
+
+@owner_required
+def setup(request):
+    if request.method not in ('GET', 'POST'):
+        return HttpResponse(status=405)
+    journal = JournalAccessSettings.current()
+    form = SetupForm(request.POST if request.method == 'POST' else None, instance=journal)
+    if request.method == 'POST' and request.POST.get('action') == 'finish':
+        if not journal.child_name:
+            return redirect('setup')
+        JournalAccessSettings.objects.filter(pk=1).update(setup_completed=True)
+        messages.success(request, 'Careloop is ready. You can update profiles and settings from Menu.')
+        return redirect('timeline')
+    if request.method == 'POST' and form.is_valid():
+        # Only update setup fields: preserve concurrently edited access deadlines.
+        JournalAccessSettings.objects.filter(pk=1).update(child_name=form.cleaned_data['child_name'])
+        return redirect('/setup/?step=team')
+    return render(request, 'journal/setup.html', {'form': form,
+        'team_step': request.GET.get('step') == 'team' and bool(journal.child_name),
+        'professionals': Membership.objects.filter(active=True, role__in=['teacher', 'therapist'])})
+
+
+@login_required
+@require_GET
+def welcome(request):
+    if is_owner(request.membership) and not JournalAccessSettings.current().setup_completed:
+        return redirect('setup')
+    if not request.membership.display_name or (request.membership.role in ['teacher', 'therapist']
+                                               and not request.membership.organization):
+        return redirect('profile')
+    return redirect('timeline')
+
+
+@login_required
+def profile(request):
+    if request.method not in ('GET', 'POST'):
+        return HttpResponse(status=405)
+    form = ProfileForm(request.POST if request.method == 'POST' else None, instance=request.membership)
+    if request.method == 'POST' and form.is_valid():
+        updated = form.save(commit=False)
+        updated.save(update_fields=['display_name', 'organization'])
+        messages.success(request, 'Profile updated.')
+        return redirect('timeline')
+    return render(request, 'journal/profile.html', {'form': form})
 
 
 @require_GET

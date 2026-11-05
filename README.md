@@ -6,6 +6,8 @@ Parents, teachers, and therapists can log observations, save private drafts, and
 
 ## What you can do
 
+On first Google sign-in, owners start a two-step setup wizard to choose the child's display name and review the care team. Reopen it from **Menu → Journal setup**. Teachers and therapists complete **My profile** with their full name and school or therapy center; owners can also maintain these details through **Care team**. Names and affiliations appear alongside entries within their existing audience. Anonymous visitors do not see the child's configured name.
+
 - Parents, teachers, and therapists record a daily summary, observations, what helped, and any follow-up.
 - Attach up to two optional photos; uploads are optimized and remain private to the entry’s audience.
 - Owners can also log home observations, discuss entries, and manage access.

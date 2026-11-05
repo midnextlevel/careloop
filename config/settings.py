@@ -79,7 +79,7 @@ SOCIALACCOUNT_PROVIDERS = {'google': {
     'OAUTH_PKCE_ENABLED': True,
 }}
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/welcome/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/login/'
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Manila'

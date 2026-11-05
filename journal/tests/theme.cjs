@@ -10,6 +10,12 @@ const fs = require('node:fs');
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(process.env.JOURNAL_BROWSER_URL);
+    await page.getByRole('link', {name:'Set up your child’s journal'}).click();
+    await page.getByLabel('Child’s display name').fill('Alex');
+    await page.getByRole('button', {name:'Continue to care team'}).click();
+    await page.getByRole('heading', {name:'Your care team'}).waitFor();
+    await page.getByRole('button', {name:'Finish setup'}).click();
+    await page.reload(); // Clear the one-time setup confirmation before measuring the normal timeline.
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
     assert.equal(await page.getByRole('button', {name:'Write an entry'}).count(), 1);
     assert.equal(await page.getByRole('heading', {name:'Your drafts'}).count(), 0);

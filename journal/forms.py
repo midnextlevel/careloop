@@ -110,7 +110,8 @@ class MemberForm(forms.ModelForm):
 
     class Meta:
         model = Membership
-        fields = ['email', 'role', 'active', 'history_start']
+        fields = ['email', 'role', 'display_name', 'organization', 'active', 'history_start']
+        labels = {'organization': 'School / therapy center', 'display_name': 'Full name'}
         widgets = {'history_start': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M')}
         help_texts = {'history_start': 'Asia/Manila time. Earlier times explicitly grant access to older care-team entries.'}
 
@@ -130,3 +131,31 @@ class MemberForm(forms.ModelForm):
             if value == displayed:
                 return original
         return value
+
+
+class SetupForm(forms.ModelForm):
+    child_name = forms.CharField(max_length=80, label="Child’s display name",
+        help_text='A first name or nickname is enough.')
+
+    class Meta:
+        model = JournalAccessSettings
+        fields = ['child_name']
+
+
+class ProfileForm(forms.ModelForm):
+    display_name = forms.CharField(max_length=100, label='Full name')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.role == Membership.Role.TEACHER:
+            self.fields['organization'].label = 'School name'
+            self.fields['organization'].required = True
+        elif self.instance.role == Membership.Role.THERAPIST:
+            self.fields['organization'].label = 'Therapy center name'
+            self.fields['organization'].required = True
+        else:
+            self.fields.pop('organization')
+
+    class Meta:
+        model = Membership
+        fields = ['display_name', 'organization']
