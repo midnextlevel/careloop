@@ -31,6 +31,8 @@ if (editor) {
       status.textContent = 'Preparing audience review…';
       const data = new FormData(editor);
       data.set('action', 'review');
+      const photoFields = editor.querySelector('[data-photo-controls] fieldset');
+      if (photoFields) photoFields.disabled = true;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 20000);
       try {
@@ -81,7 +83,7 @@ if (editor) {
         });
       } catch (error) {
         status.textContent = `Review failed. ${error.message} Your text remains in this open page.`;
-      } finally { clearTimeout(timeout); saving = false; }
+      } finally { clearTimeout(timeout); saving = false; if (photoFields) photoFields.disabled = false; }
       return;
     }
     if (event.submitter?.value !== 'save') { navigating = true; return; }
@@ -91,6 +93,8 @@ if (editor) {
     status.textContent = 'Saving…';
     const data = new FormData(editor);
     data.set('action', 'save');
+    const photoFields = editor.querySelector('[data-photo-controls] fieldset');
+    if (photoFields) photoFields.disabled = true;
     const buttons = [...editor.querySelectorAll('button')];
     buttons.forEach(button => button.disabled = true);
     const controller = new AbortController();
@@ -98,7 +102,8 @@ if (editor) {
     try {
       const response = await fetch(location.href, {method: 'POST', body: data, headers: {'Accept': 'application/json'}, cache: 'no-store', signal: controller.signal});
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Save was not confirmed.');
+      if (!response.ok) throw new Error([result.error, ...Object.values(result.fields || {}).flat()].filter(Boolean).join(' ') || 'Save was not confirmed.');
+      if (result.photos_html) editor.querySelector('[data-photo-controls]').innerHTML = result.photos_html;
       editor.elements.version.value = result.version;
       dirty = generation !== sentGeneration;
       status.textContent = dirty ? 'Unsaved changes made while saving. Save again.' : `Saved on the server at ${result.saved_at}`;
@@ -109,6 +114,7 @@ if (editor) {
       clearTimeout(timeout);
       saving = false;
       buttons.forEach(button => button.disabled = false);
+      if (photoFields) photoFields.disabled = false;
     }
   });
   window.addEventListener('offline', () => { status.textContent = dirty ? 'Offline — changes are unsaved. Keep this page open.' : 'Offline — further changes cannot be saved yet.'; });

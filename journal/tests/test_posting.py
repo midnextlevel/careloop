@@ -11,25 +11,24 @@ class PostingRoleTests(TestCase):
         self.teacher, self.tm = identity('teacher', 'posting-teacher')
         self.therapist, self.pm = identity('therapist', 'posting-therapist')
 
-    def test_owner_tracks_and_comments_but_cannot_create_or_edit_entries(self):
-        legacy = Entry.objects.create(author=self.owner, kind='home', summary='Earlier home entry',
-                                      submitted_at=timezone.now())
+    def test_owner_can_create_home_entries_and_revise_their_own(self):
         self.client.force_login(self.owner)
-        self.assertNotContains(self.client.get('/'), 'Write an entry')
-        self.assertNotContains(self.client.get('/'), 'Your drafts')
-        count = Entry.objects.count()
-        self.assertEqual(self.client.post('/entries/new/').status_code, 403)
-        self.assertEqual(Entry.objects.count(), count)
-        for endpoint in ('edit/', 'publish/'):
-            self.assertEqual(self.client.post(f'/entries/{legacy.pk}/{endpoint}', {}).status_code, 403)
-        self.assertEqual(self.client.get(f'/entries/{legacy.pk}/edit/').status_code, 403)
-        self.assertNotContains(self.client.get(f'/entries/{legacy.pk}/'), 'Edit your entry')
-        self.assertEqual(self.client.post(f'/entries/{legacy.pk}/comments/', {'body': 'Tracking note'}).status_code, 302)
-        with self.assertRaises(PermissionError):
-            write_entry(self.om, legacy.pk, {field: getattr(legacy, field) for field in FIELDS}, legacy.version)
+        self.assertContains(self.client.get('/'), 'Write an entry')
+        response = self.client.post('/entries/new/')
+        entry = Entry.objects.get(pk=response.url.split('/')[2])
+        self.assertEqual(entry.kind, 'home')
+        self.assertEqual(entry.author, self.owner)
+        self.assertEqual(self.client.get(f'/entries/{entry.pk}/edit/').status_code, 200)
+        data = {field: getattr(entry, field) for field in FIELDS}
+        data.update(summary='A home observation', version=entry.version, action='review')
+        review = self.client.post(f'/entries/{entry.pk}/edit/', data)
+        self.assertContains(review, 'Home')
+        self.assertEqual(self.client.post(f'/entries/{entry.pk}/publish/', {
+            'ticket': review.context['ticket'], 'confirmed': 'on'}).status_code, 302)
+        self.assertContains(self.client.get(f'/entries/{entry.pk}/'), 'Edit your entry')
 
     def test_professional_defaults_share_with_all_three_members(self):
-        for user, kind in ((self.teacher, 'school'), (self.therapist, 'therapy')):
+        for user, kind in ((self.teacher, 'school'), (self.therapist, 'therapy'), (self.owner, 'home')):
             self.client.force_login(user)
             response = self.client.post('/entries/new/')
             entry = Entry.objects.get(pk=response.url.split('/')[2])

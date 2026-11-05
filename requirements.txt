@@ -19,3 +19,5 @@ typing_extensions==4.16.0
 tzdata==2025.2
 urllib3==2.8.0
 whitenoise==6.11.0
+
+Pillow==13.0.0

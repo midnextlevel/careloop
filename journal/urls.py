@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.timeline, name='timeline'),
     path('entries/new/', views.new_entry, name='new'),
     path('entries/<uuid:pk>/', views.detail, name='detail'),
+    path('entries/<uuid:pk>/photos/<uuid:photo_id>/', views.photo, name='photo'),
     path('entries/<uuid:pk>/edit/', views.edit, name='edit'),
     path('entries/<uuid:pk>/publish/', views.publish, name='publish'),
     path('entries/<uuid:pk>/comments/', views.comment, name='comment'),

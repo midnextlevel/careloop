@@ -148,7 +148,7 @@ class JournalTests(TestCase):
             self.client.force_login(user)
             for name in ['edit', 'publish']:
                 self.assertEqual(self.client.post(reverse(name, args=[self.entry.pk]), self.payload(self.entry)).status_code,
-                                 403 if user == self.owner else 404)
+                                 404)
         self.entry.refresh_from_db()
         self.assertEqual(self.entry.summary, 'Restricted therapist note')
 

@@ -15,9 +15,8 @@ const assert = require('node:assert/strict');
     await page.getByRole('button',{name:'Sign in to test'}).click();
     await page.getByRole('heading',{name:'Day by day'}).waitFor();
     await page.getByRole('link',{name:'Care team', exact:true}).waitFor();
-    assert.equal(await page.getByRole('button',{name:'Write an entry'}).count(),0);
+    assert.equal(await page.getByRole('button',{name:'Write an entry'}).count(),1);
     await page.getByRole('link',{name:'Read entry'}).first().click();
-    assert.equal(await page.getByRole('link',{name:'Edit your entry'}).count(),0);
     const entryUrl = page.url();
     await page.getByRole('link',{name:'Back to journal'}).click();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -29,6 +28,6 @@ const assert = require('node:assert/strict');
     await page.getByRole('heading',{name:'Welcome to the journal'}).waitFor();
     await page.goto(entryUrl);
     await page.getByRole('heading',{name:'Welcome to the journal'}).waitFor();
-    console.log('PASS: named owner login, read-only tracking, owner controls, dark mode, mobile layout, logout, anonymous denial.');
+    console.log('PASS: named owner login, owner posting availability, owner controls, dark mode, mobile layout, logout, anonymous denial.');
   } finally { await browser.close(); }
 })().catch(error=>{console.error(error);process.exit(1);});

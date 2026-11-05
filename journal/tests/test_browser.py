@@ -8,11 +8,25 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import Client
 from django.utils import timezone
 from journal.models import Entry
+import base64
 from .test_journal import identity
 
 
 @skipUnless(os.getenv('BROWSER_NODE'), 'Set BROWSER_NODE and NODE_PATH to run Playwright browser verification.')
 class BrowserWorkflowTests(StaticLiveServerTestCase):
+    def test_owner_photos_save_offline_retry_submit_and_revision(self):
+        from .test_photos import image_upload
+        from journal.models import EntryPhoto
+        owner, _ = identity('owner', 'browser-photo-owner')
+        self.client.force_login(owner)
+        env = dict(os.environ, JOURNAL_BROWSER_URL=self.live_server_url,
+                   JOURNAL_BROWSER_SESSION=self.client.cookies['sessionid'].value,
+                   PHOTO_BASE64=base64.b64encode(image_upload(size=(64, 32)).read()).decode())
+        result = subprocess.run([os.environ['BROWSER_NODE'], str(Path(__file__).with_name('photos.cjs'))],
+                                env=env, capture_output=True, text=True, timeout=90)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(EntryPhoto.objects.count(), 2)  # Saved uploads were not uploaded again during review.
+
     def test_dark_mode_and_owner_overview(self):
         owner, _ = identity('owner', 'browser-theme-owner')
         self.client.force_login(owner)

@@ -1,0 +1,1 @@
+{% if entry_photos %}<div class="photo-grid">{% for photo in entry_photos %}<a href="{% url 'photo' entry.pk photo.pk %}" target="_blank" rel="noopener"><img src="{% url 'photo' entry.pk photo.pk %}" alt="Entry photo {{ forloop.counter }}" width="{{ photo.width }}" height="{{ photo.height }}" loading="lazy"></a>{% endfor %}</div>{% endif %}

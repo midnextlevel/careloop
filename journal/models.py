@@ -59,6 +59,7 @@ class Entry(models.Model):
     follow_up = models.TextField(blank=True, max_length=10000)
     audience = models.CharField(max_length=10, choices=Audience.choices, default=Audience.TEAM)
     professional_access_until = models.DateTimeField(null=True, blank=True)
+    photo_ids = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
     submitted_at = models.DateTimeField(null=True, blank=True)
@@ -80,6 +81,15 @@ class Revision(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=['entry', 'version'], name='unique_entry_revision')]
         ordering = ['-version']
+
+
+class EntryPhoto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name='photo_uploads')
+    content = models.BinaryField()
+    width = models.PositiveIntegerField()
+    height = models.PositiveIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
 
 
 class Comment(models.Model):

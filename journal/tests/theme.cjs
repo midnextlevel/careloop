@@ -11,7 +11,7 @@ const fs = require('node:fs');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(process.env.JOURNAL_BROWSER_URL);
     assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
-    assert.equal(await page.getByRole('button', {name:'Write an entry'}).count(), 0);
+    assert.equal(await page.getByRole('button', {name:'Write an entry'}).count(), 1);
     assert.equal(await page.getByRole('heading', {name:'Your drafts'}).count(), 0);
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(17, 27, 24)');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);

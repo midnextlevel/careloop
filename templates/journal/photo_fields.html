@@ -1,0 +1,6 @@
+<fieldset class="card form-section"><legend>Photos (optional)</legend>
+{{ form.photo_ids }}
+<p class="help">Up to two photos. JPEG, PNG or WebP, at most 12 MB each. Photos are resized and compressed; location metadata is removed.</p>
+<div class="photo-grid">{% for photo in entry_photos %}<div class="photo-item"><img src="{% url 'photo' entry.pk photo.pk %}" alt="Attached photo {{ forloop.counter }}" width="{{ photo.width }}" height="{{ photo.height }}"><label class="photo-remove"><input type="checkbox" name="remove_photos" value="{{ photo.pk }}"> Remove photo {{ forloop.counter }}</label></div>{% endfor %}</div>
+{{ form.photos.label_tag }}{{ form.photos }}{{ form.photos.errors }}
+</fieldset>

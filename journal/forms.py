@@ -1,6 +1,21 @@
 from django import forms
 from django.utils import timezone
-from .models import Entry, Membership, JournalAccessSettings
+from .models import Entry, Membership, JournalAccessSettings, EntryPhoto
+from .photos import optimize_photo
+
+
+class PhotoInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class PhotoField(forms.FileField):
+    widget = PhotoInput(attrs={'accept': 'image/jpeg,image/png,image/webp'})
+
+    def clean(self, data, initial=None):
+        uploads = data if isinstance(data, (list, tuple)) else [data] if data else []
+        if len(uploads) > 2:
+            raise forms.ValidationError('Choose at most two photos.')
+        return [optimize_photo(super(PhotoField, self).clean(upload)) for upload in uploads]
 
 
 class TimelineDateForm(forms.Form):
@@ -46,10 +61,37 @@ class EntryAccessForm(forms.ModelForm):
 
 class EntryForm(forms.ModelForm):
     version = forms.IntegerField(widget=forms.HiddenInput)
+    photo_ids = forms.JSONField(required=False, widget=forms.HiddenInput)
+    photos = PhotoField(required=False, label='Add photos (optional)')
 
     def __init__(self, *args, **kwargs):
+        member = kwargs.pop('member', None)
         super().__init__(*args, **kwargs)
+        self.initial['photo_ids'] = self.instance.photo_ids
         self.fields['kind'].choices = [(Entry.Kind.SCHOOL, 'School'), (Entry.Kind.THERAPY, 'Therapy')]
+        if member and member.role == Membership.Role.OWNER:
+            self.fields['kind'].choices = Entry.Kind.choices
+
+    def clean(self):
+        cleaned = super().clean()
+        ids = cleaned.get('photo_ids')
+        if ids is None:
+            ids = self.instance.photo_ids
+        if not isinstance(ids, list) or len(ids) > 2 or any(not isinstance(value, str) for value in ids):
+            raise forms.ValidationError('An entry can have at most two photos.')
+        import uuid
+        try:
+            ids = [str(uuid.UUID(value)) for value in ids]
+        except ValueError:
+            raise forms.ValidationError('Invalid photo selection.')
+        if len(set(ids)) != len(ids) or EntryPhoto.objects.filter(entry_id=self.instance.pk, pk__in=ids).count() != len(ids):
+            raise forms.ValidationError('Photos must belong to this entry.')
+        removed = self.data.getlist('remove_photos') if hasattr(self.data, 'getlist') else []
+        kept = [value for value in ids if value not in removed]
+        if len(kept) + len(cleaned.get('photos', [])) > 2:
+            self.add_error('photos', 'Keep at most two photos. Remove an existing photo before adding another.')
+        cleaned['photo_ids'] = kept
+        return cleaned
 
     class Meta:
         model = Entry

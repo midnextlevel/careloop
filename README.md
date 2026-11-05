@@ -2,12 +2,13 @@
 
 A private daily journal that helps a child's parent, teachers, and therapists share the moments that matter.
 
-Teachers and therapists write about school and therapy. Parents follow the shared timeline and manage access. Professionals save private drafts and review the audience before submitting, with Care team selected by default.
+Parents, teachers, and therapists can log observations, save private drafts, and review the audience before submitting. New entries are shared with Care team by default.
 
 ## What you can do
 
-- Teachers and therapists record a daily summary, observations, what helped, and any follow-up.
-- Parents review their child’s behaviour outside home, discuss entries, and manage access; they do not create or revise journal entries.
+- Parents, teachers, and therapists record a daily summary, observations, what helped, and any follow-up.
+- Attach up to two optional photos; uploads are optimized and remain private to the entry’s audience.
+- Owners can also log home observations, discuss entries, and manage access.
 - Read submitted entries in a timeline grouped by event date.
 - Comment on entries you can access.
 - Revise your own entries while preserving previous submitted versions.
@@ -27,7 +28,7 @@ Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a sm
 | Comments | Anyone who can read the entry |
 | Previous versions | The parent, and the author while they can access the entry |
 
-**Care team** is the default audience for new entries. Existing Parent + author entries retain their audience. Drafts remain private. Only teachers and therapists can create entries or revise their own accessible entries. Their new posts default to sharing with all three care-team members, subject to owner access controls. New professionals start without past shared history; the owner can deliberately adjust it.
+**Care team** is the default audience for new entries. Existing Parent + author entries retain their audience. Drafts remain private. All three roles can create entries and revise their own accessible entries. Owners start with Home selected; teachers start with School, and therapists with Therapy. Their new posts default to sharing with all three care-team members, subject to owner access controls. New professionals start without past shared history; the owner can deliberately adjust it.
 
 ## Control access as the owner
 
@@ -112,9 +113,15 @@ docker compose run --rm -e JOURNAL_TESTING=1 web python manage.py test --verbosi
 
 The tests use a separate database. Browser tests require optional Playwright configuration; without it, that test is skipped. See the [testing instructions](docs/development.md#tests-and-checks) for browser tests, startup checks, and a test-only SQLite fallback.
 
+## Optional photos
+
+Attach up to **two photos per entry**, including existing photos. Accepted formats are JPEG, PNG and WebP, up to 12 MB and 40 megapixels each. The server corrects orientation, strips embedded metadata (including location), resizes the longest edge to at most 1,600 pixels without enlarging small photos, and compresses each result to JPEG at most 512 KB. HEIC/HEIF, SVG, video and animated images are not supported; export a compatible still photo first.
+
+Draft photos stay author-only. Submitted photos follow entry audience, history, expiry and revocation controls. Removed photos from submitted entries remain in the previous-version history for the parent and author while they can access the entry. Photos are stored privately in PostgreSQL, served through authenticated endpoints with no-store headers, and included in database backups. There is no public media directory.
+
 ## Current status
 
-The last full PostgreSQL run passed **52 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **61 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 
@@ -124,4 +131,4 @@ Read the [deployment guide](docs/deployment.md) for Google callback URLs, HTTPS 
 
 For production, disable development login and debug mode, configure real Google credentials and your domain, and run the documented deployment checks. Keep `.env`, `.local`, credentials, databases, and backups out of Git.
 
-Attachments, notifications, reminders, PDF export, analytics, rich-text editing, and offline synchronization are outside this version.
+Photo attachments are now included. Other attachment types, notifications, reminders, PDF export, analytics, rich-text editing, and offline synchronization remain outside this version.

@@ -10,13 +10,36 @@ from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from .forms import EntryForm, MemberForm, TimelineDateForm, JournalAccessForm, EntryAccessForm
-from .models import Entry, Membership, Comment, JournalAccessSettings
+from .models import Entry, EntryPhoto, Membership, Comment, JournalAccessSettings
 from .policies import can_edit, can_post, development_access_allowed, is_owner, membership_for, visible_entries
 from .services import FIELDS, Conflict, write_entry
+
+
+def selected_photos(entry, ids=None):
+    by_id = {str(photo.pk): photo for photo in EntryPhoto.objects.filter(entry=entry,
+        pk__in=entry.photo_ids if ids is None else ids).defer('content')}
+    return [by_id[value] for value in (entry.photo_ids if ids is None else ids) if value in by_id]
+
+
+@login_required
+@require_GET
+def photo(request, pk, photo_id):
+    entry = get_object_or_404(visible_entries(request.membership), pk=pk)
+    item = get_object_or_404(EntryPhoto, pk=photo_id, entry=entry)
+    key = str(item.pk)
+    allowed = key in entry.photo_ids or entry.author_id == request.user.pk
+    if not allowed and is_owner(request.membership):
+        allowed = any(key in revision.snapshot.get('photo_ids', []) for revision in entry.revisions.all())
+    if not allowed:
+        raise PermissionDenied
+    response = HttpResponse(bytes(item.content), content_type='image/jpeg')
+    response['Content-Disposition'] = f'inline; filename="photo-{item.pk}.jpg"'
+    return response
 
 
 def owner_required(view):
@@ -92,7 +115,8 @@ def new_entry(request):
         return HttpResponse('Choose a valid event date.', status=400)
     entry = Entry.objects.create(author=request.user,
         event_date=date_form.cleaned_data['date'] or timezone.localdate(),
-        kind=Entry.Kind.THERAPY if request.membership.role == Membership.Role.THERAPIST else Entry.Kind.SCHOOL)
+        kind={Membership.Role.OWNER: Entry.Kind.HOME, Membership.Role.THERAPIST: Entry.Kind.THERAPY}.get(
+            request.membership.role, Entry.Kind.SCHOOL))
     return redirect('edit', pk=entry.pk)
 
 
@@ -108,6 +132,7 @@ def detail(request, pk):
         'can_edit': can_edit(request.membership, entry),
         'access_form': EntryAccessForm(instance=entry) if is_owner(request.membership) and entry.submitted_at else None,
         'access_deadline': deadline,
+        'entry_photos': selected_photos(entry),
         'comments': entry.comments.select_related('author') if entry.submitted_at else []})
 
 
@@ -118,11 +143,23 @@ def edit(request, pk):
     entry = get_object_or_404(visible_entries(request.membership), pk=pk, author=request.user)
     if request.method not in ('GET', 'POST'):
         return HttpResponse(status=405)
-    form = EntryForm(request.POST or None, instance=entry, initial={'version': entry.version})
+    form = EntryForm(request.POST or None, request.FILES or None, instance=entry,
+                     member=request.membership, initial={'version': entry.version})
     error = None
     if request.method == 'POST' and form.is_valid():
         action = request.POST.get('action')
         data = {field: form.cleaned_data[field] for field in FIELDS}
+        if form.cleaned_data['version'] != Entry.objects.get(pk=pk).version:
+            error = 'A newer version exists. Your text is below; open the latest entry in another tab.'
+        elif action in ('review', 'save'):
+            data['photo_ids'] = list(form.cleaned_data['photo_ids'])
+            for image in form.cleaned_data['photos']:
+                data['photo_ids'].append(str(EntryPhoto.objects.create(entry=entry, **image).pk))
+        if error:
+            if request.headers.get('Accept') == 'application/json':
+                return JsonResponse({'error': error}, status=409)
+            return render(request, 'journal/edit.html', {'entry': entry, 'form': form, 'error': error,
+                'entry_photos': selected_photos(entry, form.cleaned_data.get('photo_ids', []))}, status=409)
         if action == 'review':
             if not data['summary'].strip():
                 form.add_error('summary', 'Add a daily summary before submitting.')
@@ -133,12 +170,16 @@ def edit(request, pk):
                 ticket = signing.dumps({'id': str(pk), 'author': request.user.pk,
                     'version': form.cleaned_data['version'], 'data': serial, 'token': str(uuid.uuid4())}, salt='review')
                 return render(request, 'journal/review.html', {'entry': entry, 'data': data, 'ticket': ticket,
+                    'entry_photos': selected_photos(entry, data['photo_ids']),
                     'audience_label': dict(Entry.Audience.choices)[data['audience']]})
         elif action == 'save':
             try:
                 saved = write_entry(request.membership, pk, data, form.cleaned_data['version'])
                 if request.headers.get('Accept') == 'application/json':
-                    return JsonResponse({'version': saved.version, 'saved_at': timezone.localtime(saved.updated_at).strftime('%H:%M:%S')})
+                    photo_form = EntryForm(instance=saved, member=request.membership)
+                    return JsonResponse({'version': saved.version, 'saved_at': timezone.localtime(saved.updated_at).strftime('%H:%M:%S'),
+                        'photos_html': render_to_string('journal/photo_fields.html', {'form': photo_form,
+                            'entry': saved, 'entry_photos': selected_photos(saved)}, request=request)})
                 messages.success(request, 'Draft saved on the server.')
                 return redirect('edit', pk=pk)
             except PermissionError:
@@ -149,7 +190,8 @@ def edit(request, pk):
             error = 'Choose Save draft or Review audience.'
     if request.method == 'POST' and request.headers.get('Accept') == 'application/json':
         return JsonResponse({'error': error or 'Please check the form fields.', 'fields': form.errors}, status=409 if error else 400)
-    return render(request, 'journal/edit.html', {'entry': entry, 'form': form, 'error': error}, status=409 if error else 200)
+    return render(request, 'journal/edit.html', {'entry': entry, 'form': form, 'error': error,
+        'entry_photos': selected_photos(entry)}, status=409 if error else 200)
 
 
 @login_required
@@ -157,7 +199,7 @@ def edit(request, pk):
 def publish(request, pk):
     if not can_post(request.membership):
         raise PermissionDenied
-    get_object_or_404(visible_entries(request.membership), pk=pk, author=request.user)
+    original = get_object_or_404(visible_entries(request.membership), pk=pk, author=request.user)
     if request.POST.get('confirmed') != 'on':
         return HttpResponse('Confirm the reviewed audience before submitting.', status=400)
     ticket = request.POST.get('ticket', '')
@@ -165,7 +207,8 @@ def publish(request, pk):
         payload = signing.loads(ticket, salt='review', max_age=3600)
         if payload['id'] != str(pk) or payload['author'] != request.user.pk:
             raise signing.BadSignature
-        form = EntryForm({**payload['data'], 'version': payload['version']})
+        form = EntryForm({**payload['data'], 'version': payload['version']}, instance=original,
+                         member=request.membership)
         if not form.is_valid() or not form.cleaned_data['summary'].strip():
             raise signing.BadSignature
     except (signing.BadSignature, KeyError, TypeError, ValueError):

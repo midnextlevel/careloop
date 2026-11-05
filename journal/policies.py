@@ -32,7 +32,7 @@ def visible_entries(member):
     own = Q(author_id=member.user_id)
     submitted = Q(submitted_at__isnull=False)
     if member.role == Membership.Role.OWNER:
-        return Entry.objects.filter(submitted)
+        return Entry.objects.filter(own | submitted)
     policy = JournalAccessSettings.current()
     now = timezone.now()
     if policy.access_until:
@@ -57,7 +57,7 @@ def can_edit(member, entry):
 
 def can_post(member):
     return bool(member and member.active and member.role in
-                (Membership.Role.TEACHER, Membership.Role.THERAPIST))
+                (Membership.Role.OWNER, Membership.Role.TEACHER, Membership.Role.THERAPIST))
 
 
 def is_owner(member):

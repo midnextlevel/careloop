@@ -39,6 +39,7 @@ Example nginx location (inside a TLS server block using your certificates):
 
 ```nginx
 location / {
+    client_max_body_size 26m;
     proxy_pass http://127.0.0.1:8000;
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -49,7 +50,7 @@ location / {
 }
 ```
 
-The proxy must overwrite untrusted incoming `X-Forwarded-Proto`; only then enable `TRUST_PROXY=true`. Keep HTTP redirecting to HTTPS, forward the original host, and never permit direct public web access that can spoof proxy headers. Turn HSTS on only after HTTPS is verified. Django/WhiteNoise serves bundled public static assets. No private media storage exists in this milestone.
+The proxy must overwrite untrusted incoming `X-Forwarded-Proto`; only then enable `TRUST_PROXY=true`. Keep HTTP redirecting to HTTPS, forward the original host, and never permit direct public web access that can spoof proxy headers. Turn HSTS on only after HTTPS is verified. Django/WhiteNoise serves bundled public static assets. Private photo bytes are stored in PostgreSQL and served only through authenticated /entries/.../photos/... endpoints. Do not add a public media route. Configure the reverse proxy with client_max_body_size 26m for the multipart upload form.
 
 Run `docker compose exec web python manage.py check --deploy` after setting production configuration. Verify HTTPS redirect, secure cookies, allowed-host rejection, correct CSRF behavior, actual Google login, revocation, and the mobile workflow before entering real child data. Deploy checks cannot establish that the surrounding proxy is configured correctly.
 
@@ -57,7 +58,7 @@ The deployment check reports W005/W021 because subdomain-wide HSTS and browser p
 
 ## Backup and recovery
 
-These commands use a Linux shell on the VM. Never commit backups. Protect and encrypt backups, copy them off the VM to a restricted destination, and apply your retention policy. PostgreSQL dumps include private entries, revisions, memberships, and sessions; keep `.env` separately in secure secret storage.
+These commands use a Linux shell on the VM. Never commit backups. Protect and encrypt backups, copy them off the VM to a restricted destination, and apply your retention policy. PostgreSQL dumps include private entries, photos, revisions, memberships, access settings, and sessions; keep `.env` separately in secure secret storage.
 
 ```sh
 mkdir -p backups
