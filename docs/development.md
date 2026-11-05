@@ -91,7 +91,7 @@ The homepage defaults to today in Asia/Manila. Tap the compact date button → c
 
 - Sign in → Write an entry → Save draft when useful → Review audience → Confirm & submit.
 - School, therapy, and home entries have an event date, summary, observations, what helped, and optional follow-up. A nonempty summary is required to submit. Each text field is limited to 10,000 characters; comments to 5,000.
-- Drafts are visible only to their author, including when the viewer is the parent. The parent reads all submitted entries. All three roles can create entries and edit only their own entries while access is permitted. Owners default to Home; teachers to School; therapists to Therapy. Owners can read all submitted history and their own private drafts.
+- Drafts are visible only to their author, including when the viewer is the parent. The parent reads all submitted entries. All three roles can create entries and edit only their own entries while access is permitted. Owners default to Home; teachers to School; therapists to Therapy center. Owners can read all submitted history and their own private drafts.
 - New entries default to **Care team**, with an explicit audience review. Existing Parent + author entries retain their audience. Comments inherit the entry's current audience. Only submitted entries accept comments.
 - Membership joining time is the approval time. History access initially starts at that time. Professional access, including authors’ own submitted entries by default, ends at the configured deadline; other care-team entries must have an original submission timestamp at or after their history start. Backdating an event date or later widening an audience does not grant old history. Owners can deliberately adjust history access. Role and access changes apply on the next authenticated request, including existing sessions. Owners cannot revoke/demote themselves.
 - Submitted edits preserve the previous content, audience, event date, and timestamps. Previous versions are visible only to the parent and author, so an earlier private version is not exposed by later sharing. The timeline labels entries as revised only when a submitted revision exists.
@@ -110,6 +110,10 @@ Each submitted entry has an optional `professional_access_until` override. An ow
 ## Entry form and touch targets
 
 The entry form separates date/type, observations, and audience into numbered fieldsets. Follow-up is optional and collapsed unless it already has content. Save draft and Review audience occupy a separate action card. Mobile buttons are at least 48px tall, with 14–16px gaps between adjacent submission actions; review confirmation uses a padded checkbox label. Owner Save entry access and Hide now are spaced apart and visually distinguished. Browser checks cover target dimensions and overflow alongside the submission workflow.
+
+## Entry-type permissions
+
+`allowed_entry_types` centralizes role choices. Teachers may submit School only; therapists default to Therapy center and may choose School; owners default to Home and may choose all three. Both entry/review forms and the locked write service enforce these choices. A signed review ticket is validated again using the current membership role on publish. The stored `therapy` value is retained; migration 0005 changes its display label to Therapy center without rewriting historical data.
 
 ## Private photos
 

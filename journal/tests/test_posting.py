@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.core import signing
+import uuid
 from journal.models import Entry
 from journal.services import FIELDS, write_entry
 from .test_journal import identity
@@ -51,5 +53,48 @@ class PostingRoleTests(TestCase):
         response = self.client.post(f'/entries/{entry.pk}/edit/',
             {**data, 'kind': 'home', 'version': entry.version, 'action': 'save'}, HTTP_ACCEPT='application/json')
         self.assertEqual(response.status_code, 400)
+        entry.refresh_from_db()
+        self.assertEqual(entry.kind, 'school')
+
+    def test_dropdown_options_are_role_specific(self):
+        for user, expected in ((self.teacher, [('school', 'School')]),
+                (self.therapist, [('therapy', 'Therapy center'), ('school', 'School')]),
+                (self.owner, [('home', 'Home'), ('school', 'School'), ('therapy', 'Therapy center')])):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                response = self.client.post('/entries/new/')
+                form = self.client.get(response.url).context['form']
+                self.assertEqual(list(form.fields['kind'].choices), expected)
+
+    def test_forged_type_rejected_on_save_review_publish_and_write_service(self):
+        for user, member, forbidden in ((self.teacher, self.tm, 'therapy'),
+                                        (self.therapist, self.pm, 'home')):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                entry = Entry.objects.create(author=user)
+                data = {field: getattr(entry, field) for field in FIELDS}
+                data.update(kind=forbidden, summary='Forged type')
+                for action in ('save', 'review'):
+                    response = self.client.post(f'/entries/{entry.pk}/edit/',
+                        {**data, 'version': entry.version, 'action': action}, HTTP_ACCEPT='application/json')
+                    self.assertEqual(response.status_code, 400)
+                serial = {key: str(value) for key, value in data.items()}
+                ticket = signing.dumps({'id': str(entry.pk), 'author': user.pk,
+                    'version': entry.version, 'data': serial, 'token': str(uuid.uuid4())}, salt='review')
+                self.assertEqual(self.client.post(f'/entries/{entry.pk}/publish/',
+                    {'ticket': ticket, 'confirmed': 'on'}).status_code, 400)
+                with self.assertRaises(PermissionError):
+                    write_entry(member, entry.pk, data, entry.version)
+                entry.refresh_from_db()
+                self.assertIsNone(entry.submitted_at)
+
+    def test_therapist_can_choose_school(self):
+        self.client.force_login(self.therapist)
+        entry = Entry.objects.create(author=self.therapist, kind='therapy')
+        data = {field: getattr(entry, field) for field in FIELDS}
+        data.update(kind='school', version=entry.version, action='review', summary='A school visit')
+        review = self.client.post(f'/entries/{entry.pk}/edit/', data)
+        self.assertEqual(self.client.post(f'/entries/{entry.pk}/publish/',
+            {'ticket': review.context['ticket'], 'confirmed': 'on'}).status_code, 302)
         entry.refresh_from_db()
         self.assertEqual(entry.kind, 'school')

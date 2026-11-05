@@ -171,6 +171,7 @@ def edit(request, pk):
                     'version': form.cleaned_data['version'], 'data': serial, 'token': str(uuid.uuid4())}, salt='review')
                 return render(request, 'journal/review.html', {'entry': entry, 'data': data, 'ticket': ticket,
                     'entry_photos': selected_photos(entry, data['photo_ids']),
+                    'kind_label': Entry.Kind(data['kind']).label,
                     'audience_label': dict(Entry.Audience.choices)[data['audience']]})
         elif action == 'save':
             try:

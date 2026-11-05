@@ -2,6 +2,8 @@
 
 ## Current implementation
 
+- Entry-type rules updated: teachers have School only; therapists default to Therapy center with School also available; owners default to Home with all three choices. Central policy supplies form options and enforces write permissions, including revalidation of signed publish reviews. All 64 PostgreSQL/browser tests passed; new tests cover allowed lists, therapist School posts, and forged save/review/publish/service requests. Migration 0005 changes the therapy display label without changing stored values or historical records.
+
 - Django 5.2.19 LTS + PostgreSQL 17, pinned dependencies, migrations, Docker/Compose, fictional samples, and setup/deployment/recovery guides.
 - Parent/owner posting restored at the user's request. All three roles can write and revise only their own accessible entries. Owner defaults to Home, teacher to School, therapist to Therapy. New entries default to Care team; existing private audiences remain unchanged. Owner can read all submitted history and only their own drafts.
 - Optional photos: maximum two selected photos per entry/version, validated server-side. JPEG/PNG/WebP still images up to 12 MB and 40 MP each are decoded, orientation-corrected, stripped of metadata, resized to at most 1600px, and re-encoded as JPEG at most 512 KB. Originals and filenames are not retained.
@@ -20,7 +22,7 @@
 
 ## Actual verification
 
-- Full PostgreSQL suite: 61 tests passed, zero skipped. Browser photo test rerun successfully after adding explicit checks that private photo URLs are absent from the service-worker cache.
+- Full PostgreSQL suite: 64 tests passed, zero skipped. Browser photo test rerun successfully after adding explicit checks that private photo URLs are absent from the service-worker cache.
 - Tests cover two-photo limits including replacements, invalid/oversized uploads, orientation/metadata/size optimization, draft and staged-upload privacy, audience/history/expiry/revocation, revision-photo preservation, cross-entry ID forgery, stale edits, retry-safe publishing, and cleanup retaining referenced history.
 - Mobile Chrome photo workflow: owner Home entry, two uploads, failed offline save retaining file inputs, reconnect/save confirmation, cleared upload controls, review without duplicate uploads, submit, photo rendering/no-store headers, removal in revision, and previous photos retained. Existing dark-mode, date, access-control, modal, touch-spacing and concurrency tests also passed.
 - Actual named-owner browser login exercised the same two-photo workflow against the local app using fictional image content. It produced a clearly fictional Home test entry, two private optimized photos, and a revision. Entry/photo screenshots generated under ignored test-results.

@@ -42,7 +42,7 @@ class Membership(models.Model):
 class Entry(models.Model):
     class Kind(models.TextChoices):
         SCHOOL = 'school', 'School'
-        THERAPY = 'therapy', 'Therapy'
+        THERAPY = 'therapy', 'Therapy center'
         HOME = 'home', 'Home'
 
     class Audience(models.TextChoices):

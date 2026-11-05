@@ -18,6 +18,16 @@ Parents, teachers, and therapists can log observations, save private drafts, and
 
 Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a small amount of JavaScript. It needs an internet connection; private entries are never cached for offline reading. Times are displayed in Asia/Manila.
 
+## Entry types by role
+
+| Role | Default | Available types |
+| --- | --- | --- |
+| Teacher | School | School only |
+| Therapist | Therapy center | Therapy center, School |
+| Parent / owner | Home | Home, School, Therapy center |
+
+These limits are enforced in the form and on the server. Existing records keep their stored types.
+
 ## Who can see what?
 
 | Content | Who can read it? |
@@ -121,7 +131,7 @@ Draft photos stay author-only. Submitted photos follow entry audience, history, 
 
 ## Current status
 
-The last full PostgreSQL run passed **61 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **64 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 

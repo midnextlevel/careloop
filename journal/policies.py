@@ -60,5 +60,14 @@ def can_post(member):
                 (Membership.Role.OWNER, Membership.Role.TEACHER, Membership.Role.THERAPIST))
 
 
+def allowed_entry_types(member):
+    kinds = {
+        Membership.Role.OWNER: [Entry.Kind.HOME, Entry.Kind.SCHOOL, Entry.Kind.THERAPY],
+        Membership.Role.TEACHER: [Entry.Kind.SCHOOL],
+        Membership.Role.THERAPIST: [Entry.Kind.THERAPY, Entry.Kind.SCHOOL],
+    }.get(member.role if member else Membership.Role.TEACHER, [])
+    return [(kind.value, kind.label) for kind in kinds]
+
+
 def is_owner(member):
     return bool(member and member.active and member.role == Membership.Role.OWNER)

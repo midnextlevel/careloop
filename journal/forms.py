@@ -2,6 +2,7 @@ from django import forms
 from django.utils import timezone
 from .models import Entry, Membership, JournalAccessSettings, EntryPhoto
 from .photos import optimize_photo
+from .policies import allowed_entry_types
 
 
 class PhotoInput(forms.ClearableFileInput):
@@ -68,9 +69,7 @@ class EntryForm(forms.ModelForm):
         member = kwargs.pop('member', None)
         super().__init__(*args, **kwargs)
         self.initial['photo_ids'] = self.instance.photo_ids
-        self.fields['kind'].choices = [(Entry.Kind.SCHOOL, 'School'), (Entry.Kind.THERAPY, 'Therapy')]
-        if member and member.role == Membership.Role.OWNER:
-            self.fields['kind'].choices = Entry.Kind.choices
+        self.fields['kind'].choices = allowed_entry_types(member)
 
     def clean(self):
         cleaned = super().clean()

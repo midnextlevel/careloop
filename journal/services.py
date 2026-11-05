@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 from .models import Entry, EntryPhoto, Revision
-from .policies import can_edit
+from .policies import allowed_entry_types, can_edit
 
 FIELDS = ['event_date', 'kind', 'summary', 'observations', 'what_helped', 'follow_up', 'audience']
 
@@ -14,6 +14,8 @@ def write_entry(member, entry_id, data, version, *, publish=False, token=None):
     entry = Entry.objects.select_for_update().get(pk=entry_id)
     if not can_edit(member, entry):
         raise PermissionError
+    if data.get('kind') not in dict(allowed_entry_types(member)):
+        raise PermissionError('Your role cannot post this entry type.')
     if publish and entry.publish_token == token:
         return entry  # Retry of the same confirmed operation; no duplicate revision.
     if entry.version != version:
