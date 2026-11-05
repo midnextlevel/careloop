@@ -3,6 +3,11 @@ from django.utils import timezone
 from .models import Entry, Membership
 
 
+class TimelineDateForm(forms.Form):
+    date = forms.DateField(required=False, label='Find a date', input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}))
+
+
 class EntryForm(forms.ModelForm):
     version = forms.IntegerField(widget=forms.HiddenInput)
     class Meta:

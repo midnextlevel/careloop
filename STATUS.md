@@ -2,6 +2,8 @@
 
 ## Implemented
 
+- Date navigation added: Find a date / Go to date filters submitted entries and the current author’s drafts by event date. Show all dates clears the filter. Write an entry on a selected day prefills its event date for missed entries. Existing authorship, audience, and history rules remain enforced.
+
 - Product renamed to Careloop across the app header, browser titles, PWA manifest, and public cache name. README reorganized around usage and setup, with detailed development/deployment guides under docs/. All 23 PostgreSQL/browser tests, Django checks, static collection, documentation link targets, and branding checks passed after the rename.
 
 - Django 5.2.19 LTS, PostgreSQL, pinned dependencies, migrations, responsive templates, Docker/Compose, and deployment/recovery documentation.
@@ -19,13 +21,15 @@
 
 ## Actual verification
 
-- Latest run: 30 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
+- Latest run: 36 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
 - Development tests cover named login, explicitly allowed LAN clients, denied out-of-subnet sessions, forwarded-header spoofing, disabled-mode sessions, revoked accounts, Google-account exclusion, and production denial. The full 30-test run completed with clean test-database teardown after fixing worker threads to explicitly close persistent connections.
 - Separate real-server Chrome smoke passed actual named password login, owner controls, draft save, audience review, submit, named authorship, mobile layout, logout, and anonymous-entry denial. Screenshot test-results/named-account-timeline.png visually inspected.
 - Browser suite also verified reload persistence, offline failed saves with retained text, reconnect/retry, comments, revisions, public-only cache contents, generic offline navigation, and no JavaScript errors.
 - Actual PostgreSQL backup/restore verified into a unique throwaway DB: migration/Django checks passed; record counts and SHA-256 digests of entries, memberships, revisions, comments, and users matched exactly. Dump: .local/backups; report: .local/restore-report.json. Verification DB removed; original DB unchanged.
 - Django checks, migration-drift check, Python compilation, static collection, and dependency check passed. Earlier SQLite-only results are superseded by PostgreSQL verification.
 - Prior production-style check --deploy: no errors, two documented HSTS subdomain/preload warnings. Proxy behavior still needs the target environment.
+
+- Date-navigation verification: all 36 PostgreSQL tests passed, including a mobile Chrome workflow finding an earlier entry, revising it with previous-version preservation, adding a missed-day draft, empty-day messaging, and clearing the filter. Server tests cover invalid dates, event/submission date separation, and private/history restrictions including HTMX requests. Migration check reported no changes. Mobile screenshot inspected.
 
 ## Review fixes
 

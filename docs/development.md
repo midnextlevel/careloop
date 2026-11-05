@@ -87,6 +87,8 @@ Optional browser test uses Node.js, Playwright, and installed Chrome. Install Pl
 
 ## Journal behavior
 
+Use Find a date → Go to date to filter by event date (not submission time). Entries and the author’s drafts are filtered together. Show all dates clears the filter. Write an entry uses the selected date, so missed days can be recorded later. To revise, open an entry and use Edit your entry; authorship, audience, history, conflict, and revision rules still apply.
+
 - Sign in → Write an entry → Save draft when useful → Review audience → Confirm & submit.
 - School, therapy, and home entries have an event date, summary, observations, what helped, and optional follow-up. A nonempty summary is required to submit. Each text field is limited to 10,000 characters; comments to 5,000.
 - Drafts are visible only to their author, including when the viewer is the parent. The parent reads all submitted entries. Only the author edits an entry.

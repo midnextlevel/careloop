@@ -1,0 +1,37 @@
+const {chromium} = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async () => {
+  const browser = await chromium.launch({headless:true, channel:process.env.BROWSER_CHANNEL || 'chrome'});
+  try {
+    const context = await browser.newContext({viewport:{width:390,height:844}});
+    await context.addCookies([{name:'sessionid', value:process.env.JOURNAL_BROWSER_SESSION, url:process.env.JOURNAL_BROWSER_URL}]);
+    const page = await context.newPage();
+    await page.goto(process.env.JOURNAL_BROWSER_URL);
+    await page.getByLabel('Find a date').fill('2024-02-29');
+    await page.getByRole('button', {name:'Go to date'}).click();
+    await page.getByRole('link', {name:'An earlier classroom note.', exact:true}).click();
+    await page.getByRole('link', {name:'Edit your entry'}).click();
+    assert.equal(await page.getByLabel('Event date').inputValue(), '2024-02-29');
+    await page.getByLabel('Daily summary').fill('Earlier classroom note, revised.');
+    await page.getByRole('button', {name:'Review audience'}).click();
+    await page.getByRole('checkbox').check();
+    await page.getByRole('button', {name:'Confirm & submit'}).click();
+    await page.getByRole('heading', {name:'Previous versions'}).waitFor();
+    await page.getByRole('link', {name:'Back to journal'}).click();
+    await page.getByLabel('Find a date').fill('2024-02-29');
+    await page.getByRole('button', {name:'Go to date'}).click();
+    await page.getByRole('link', {name:'Earlier classroom note, revised.', exact:true}).waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    fs.mkdirSync('test-results', {recursive:true});
+    await page.screenshot({path:'test-results/mobile-date-navigation.png', fullPage:true});
+    await page.getByRole('button', {name:'Write an entry'}).click();
+    assert.equal(await page.getByLabel('Event date').inputValue(), '2024-02-29');
+    await page.getByRole('link', {name:'Back to journal'}).click();
+    await page.getByLabel('Find a date').fill('2020-01-01');
+    await page.getByRole('button', {name:'Go to date'}).click();
+    await page.getByRole('heading', {name:'No submitted entries for this date'}).waitFor();
+    await page.getByRole('link', {name:'Show all dates'}).click();
+    await page.getByRole('link', {name:'Earlier classroom note, revised.', exact:true}).waitFor();
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exit(1); });

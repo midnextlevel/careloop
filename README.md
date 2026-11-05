@@ -27,6 +27,14 @@ Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a sm
 
 **Parent + author** is the default audience. Only authors can edit their entries. New professionals start without past shared history; the owner can deliberately adjust their history access.
 
+## Find or revise an earlier day
+
+1. On the journal, choose **Find a date**, then **Go to date**.
+2. Open the entry and choose **Edit your entry**. Only its author can revise it.
+3. Make the changes, review the audience, and submit. The previous submitted version is preserved.
+
+To add an entry for a missed day, select that date and choose **Write an entry**. The event date is filled in for you. **Show all dates** returns to the full timeline. The date filter also shows your drafts for that day, with the same privacy and history-access rules.
+
 ## Try the existing local setup
 
 On the Windows machine where this project was prepared:
@@ -98,7 +106,7 @@ The tests use a separate database. Browser tests require optional Playwright con
 
 ## Current status
 
-The last full PostgreSQL run passed **30 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **36 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 

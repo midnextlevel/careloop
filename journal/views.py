@@ -12,7 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
-from .forms import EntryForm, MemberForm
+from .forms import EntryForm, MemberForm, TimelineDateForm
 from .models import Entry, Membership, Comment
 from .policies import can_edit, development_access_allowed, is_owner, membership_for, visible_entries
 from .services import FIELDS, Conflict, write_entry
@@ -60,13 +60,29 @@ def development_login(request):
 def timeline(request):
     entries = visible_entries(request.membership).filter(submitted_at__isnull=False).select_related('author')
     drafts = Entry.objects.filter(author=request.user, submitted_at__isnull=True)
-    return render(request, 'journal/timeline.html', {'entries': entries, 'drafts': drafts})
+    date_form = TimelineDateForm(request.GET if request.GET else None)
+    selected_date = None
+    status = 200
+    if date_form.is_bound:
+        if date_form.is_valid():
+            selected_date = date_form.cleaned_data['date']
+        else:
+            status = 400
+    if selected_date:
+        entries = entries.filter(event_date=selected_date)
+        drafts = drafts.filter(event_date=selected_date)
+    return render(request, 'journal/timeline.html', {'entries': entries, 'drafts': drafts,
+        'date_form': date_form, 'selected_date': selected_date}, status=status)
 
 
 @login_required
 @require_POST
 def new_entry(request):
-    entry = Entry.objects.create(author=request.user)
+    date_form = TimelineDateForm(request.POST)
+    if not date_form.is_valid():
+        return HttpResponse('Choose a valid event date.', status=400)
+    entry = Entry.objects.create(author=request.user,
+        event_date=date_form.cleaned_data['date'] or timezone.localdate())
     return redirect('edit', pk=entry.pk)
 
 
