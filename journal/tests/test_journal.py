@@ -39,7 +39,7 @@ class SetupCommandTests(TestCase):
     def test_fictional_seed_is_idempotent_and_never_grants_login(self):
         for _ in range(2):
             call_command('seed_fictional', stdout=StringIO())
-        self.assertEqual(Entry.objects.count(), 3)
+        self.assertEqual(Entry.objects.count(), 2)
         self.assertFalse(Membership.objects.filter(active=True).exists())
         self.assertFalse(get_user_model().objects.filter(is_active=True).exists())
         self.assertTrue(all(not user.has_usable_password() for user in get_user_model().objects.all()))
@@ -147,7 +147,8 @@ class JournalTests(TestCase):
         for user in [self.teacher, self.owner]:
             self.client.force_login(user)
             for name in ['edit', 'publish']:
-                self.assertEqual(self.client.post(reverse(name, args=[self.entry.pk]), self.payload(self.entry)).status_code, 404)
+                self.assertEqual(self.client.post(reverse(name, args=[self.entry.pk]), self.payload(self.entry)).status_code,
+                                 403 if user == self.owner else 404)
         self.entry.refresh_from_db()
         self.assertEqual(self.entry.summary, 'Restricted therapist note')
 

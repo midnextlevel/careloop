@@ -46,6 +46,11 @@ class EntryAccessForm(forms.ModelForm):
 
 class EntryForm(forms.ModelForm):
     version = forms.IntegerField(widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['kind'].choices = [(Entry.Kind.SCHOOL, 'School'), (Entry.Kind.THERAPY, 'Therapy')]
+
     class Meta:
         model = Entry
         fields = ['event_date', 'kind', 'summary', 'observations', 'what_helped', 'follow_up', 'audience']

@@ -2,15 +2,17 @@
 
 A private daily journal that helps a child's parent, teachers, and therapists share the moments that matter.
 
-Write about school, therapy, or home. Save a private draft, choose who can read it, and review the audience before submitting.
+Teachers and therapists write about school and therapy. Parents follow the shared timeline and manage access. Professionals save private drafts and review the audience before submitting, with Care team selected by default.
 
 ## What you can do
 
-- Record a daily summary, observations, what helped, and any follow-up.
+- Teachers and therapists record a daily summary, observations, what helped, and any follow-up.
+- Parents review their child’s behaviour outside home, discuss entries, and manage access; they do not create or revise journal entries.
 - Read submitted entries in a timeline grouped by event date.
 - Comment on entries you can access.
 - Revise your own entries while preserving previous submitted versions.
 - Approve care-team members, assign roles, and revoke access as the owner.
+- Switch between light and dark mode; your device preference is used initially.
 - Install Careloop on a phone's home screen.
 
 Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a small amount of JavaScript. It needs an internet connection; private entries are never cached for offline reading. Times are displayed in Asia/Manila.
@@ -25,7 +27,7 @@ Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a sm
 | Comments | Anyone who can read the entry |
 | Previous versions | The parent, and the author while they can access the entry |
 
-**Care team** is the default audience for new entries. Existing Parent + author entries retain their audience. Drafts remain private, and only authors can edit entries they can currently access. New professionals start without past shared history; the owner can deliberately adjust it.
+**Care team** is the default audience for new entries. Existing Parent + author entries retain their audience. Drafts remain private. Only teachers and therapists can create entries or revise their own accessible entries. Their new posts default to sharing with all three care-team members, subject to owner access controls. New professionals start without past shared history; the owner can deliberately adjust it.
 
 ## Control access as the owner
 
@@ -92,7 +94,7 @@ docker compose up -d web
 
 Open [localhost:8000](http://localhost:8000), sign in with the approved Google email, and use **Care team** to approve others. The bootstrap command approves an email; it does not create a password. For an existing database with an owner, approve new users through **Care team** instead.
 
-Optional fictional sample entries are available with `docker compose exec web python manage.py seed_fictional` while `DEBUG=true`. Their sample identities cannot sign in.
+Optional fictional sample entries are available with `docker compose exec web python manage.py seed_fictional` while `DEBUG=true`. Their sample identities cannot sign in. New seed runs create teacher and therapist observations only; older demo home entries are preserved as historical records.
 
 ## Run the tests
 
@@ -112,7 +114,7 @@ The tests use a separate database. Browser tests require optional Playwright con
 
 ## Current status
 
-The last full PostgreSQL run passed **47 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **51 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 

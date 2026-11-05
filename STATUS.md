@@ -2,6 +2,9 @@
 
 ## Implemented
 
+- Parent/owner workflow revised at user request: owners track submitted observations, comment, and manage access; entry creation and revision are blocked in the UI, views, and write policy. Teachers and therapists post School/Therapy entries with role-appropriate initial type and Care team selected by default. Tests verify normal new posts are readable by all three roles within access rules. Legacy submitted home/owner records are retained for reading; new seed runs create professional observations only.
+- Light/dark mode added across the shared app, with an accessible header toggle, initial system-preference detection, dark native form controls, and a one-year UI-only theme cookie. No private data is persisted client-side. Public theme.js added to the service-worker allowlist; cache name updated to v3.
+
 - Owner-controlled expiry: Data access offers a fixed Asia/Manila deadline date/time picker or a rolling access-days setting (30 initially). Defaults include authors’ own submitted entries. Per-entry deadlines restore/limit access, Hide now closes it, and clearing an override returns to global rules. Owner submitted-history access never expires; drafts remain author-only.
 - New entries default to Care team after the user’s revised sharing request. Existing Parent + author audiences are preserved. Expiry is enforced in lists, date filters, direct detail, edit, comment, publish, and server write policies. Existing sessions obey changes on their next request; revisions do not restart the original clock.
 - Generic create_dev_user command supports teacher, therapist, and owner roles; create_dev_owner remains compatible. Local named teacher and therapist accounts created, with explicitly granted history access to the existing shared fictional samples. Their credentials are in ignored .local/professional-accounts.txt, excluded from Git.
@@ -25,7 +28,7 @@
 
 ## Actual verification
 
-- Latest run: 47 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
+- Latest run: 51 tests passed against PostgreSQL, zero skipped, including real headless Chrome, concurrent entry writes, and all review regressions. Django system checks and migration-drift checks passed; static assets collected successfully.
 - Development tests cover named login, explicitly allowed LAN clients, denied out-of-subnet sessions, forwarded-header spoofing, disabled-mode sessions, revoked accounts, Google-account exclusion, and production denial. The full 30-test run completed with clean test-database teardown after fixing worker threads to explicitly close persistent connections.
 - Separate real-server Chrome smoke passed actual named password login, owner controls, draft save, audience review, submit, named authorship, mobile layout, logout, and anonymous-entry denial. Screenshot test-results/named-account-timeline.png visually inspected.
 - Browser suite also verified reload persistence, offline failed saves with retained text, reconnect/retry, comments, revisions, public-only cache contents, generic offline navigation, and no JavaScript errors.
@@ -36,6 +39,8 @@
 - Date-navigation verification: all 36 PostgreSQL tests passed, including a mobile Chrome workflow finding an earlier entry, revising it with previous-version preservation, adding a missed-day draft, empty-day messaging, and clearing the filter. Server tests cover invalid dates, event/submission date separation, and private/history restrictions including HTMX requests. Migration check reported no changes. Mobile screenshot inspected.
 
 - Access-control verification: all 47 tests passed against PostgreSQL, including the mobile owner deadline picker, both professional roles losing and regaining access, Hide now, author expiry, audience/history/revocation precedence, exact expiry boundary, direct/HTMX endpoint denial, and revision clock preservation. Actual named teacher/therapist logins verified against the running app; each saw shared fictional entries and was denied owner controls. Migration 0003 applied locally; no migration drift. Backup/restore content digests matched, now including JournalAccessSettings.
+
+- Current-role/theme verification: 51 PostgreSQL tests passed, including owner POST/edit/service denial, teacher/therapist defaults and three-member sharing, rejection of forged Home entries, dark-mode system defaults, toggling/reload persistence, dark form rendering, responsive width, no localStorage, and the expanded public-only static cache. Mobile dark-mode screenshot visually inspected. Actual named-owner smoke verified read-only tracking, access controls, dark mode, logout, and anonymous denial. No migrations required.
 
 ## Review fixes
 

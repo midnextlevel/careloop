@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 from .forms import EntryForm, MemberForm, TimelineDateForm, JournalAccessForm, EntryAccessForm
 from .models import Entry, Membership, Comment, JournalAccessSettings
-from .policies import can_edit, development_access_allowed, is_owner, membership_for, visible_entries
+from .policies import can_edit, can_post, development_access_allowed, is_owner, membership_for, visible_entries
 from .services import FIELDS, Conflict, write_entry
 
 
@@ -80,11 +80,14 @@ def timeline(request):
 @login_required
 @require_POST
 def new_entry(request):
+    if not can_post(request.membership):
+        raise PermissionDenied
     date_form = TimelineDateForm(request.POST)
     if not date_form.is_valid():
         return HttpResponse('Choose a valid event date.', status=400)
     entry = Entry.objects.create(author=request.user,
-        event_date=date_form.cleaned_data['date'] or timezone.localdate())
+        event_date=date_form.cleaned_data['date'] or timezone.localdate(),
+        kind=Entry.Kind.THERAPY if request.membership.role == Membership.Role.THERAPIST else Entry.Kind.SCHOOL)
     return redirect('edit', pk=entry.pk)
 
 
@@ -105,6 +108,8 @@ def detail(request, pk):
 
 @login_required
 def edit(request, pk):
+    if not can_post(request.membership):
+        raise PermissionDenied
     entry = get_object_or_404(visible_entries(request.membership), pk=pk, author=request.user)
     if request.method not in ('GET', 'POST'):
         return HttpResponse(status=405)
@@ -145,6 +150,8 @@ def edit(request, pk):
 @login_required
 @require_POST
 def publish(request, pk):
+    if not can_post(request.membership):
+        raise PermissionDenied
     get_object_or_404(visible_entries(request.membership), pk=pk, author=request.user)
     if request.POST.get('confirmed') != 'on':
         return HttpResponse('Confirm the reviewed audience before submitting.', status=400)

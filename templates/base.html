@@ -3,9 +3,10 @@
 <meta name="theme-color" content="#24594b"><meta name="robots" content="noindex,nofollow">
 <title>{% block title %}Journal{% endblock %} · Careloop</title>
 <link rel="manifest" href="{% static 'manifest.webmanifest' %}"><link rel="apple-touch-icon" href="{% static 'icon-192.png' %}">
+<script src="{% static 'theme.js' %}"></script>
 <link rel="stylesheet" href="{% static 'app.css' %}"><script src="{% static 'app.js' %}" defer></script></head>
 <body hx-history="false"><header class="top"><a class="brand" href="{% url 'timeline' %}"><span class="brand-mark" aria-hidden="true">✳</span> Careloop<span class="brand-sub">A PRIVATE DAILY JOURNAL</span></a>
-<nav aria-label="Main navigation">{% if user.is_authenticated %}<a href="{% url 'timeline' %}">Journal</a>{% if member.role == 'owner' %}<a href="{% url 'members' %}">Care team</a><a href="{% url 'access-settings' %}">Data access</a>{% endif %}{% endif %}<a href="{% url 'install' %}">Install</a>
+<nav aria-label="Main navigation">{% if user.is_authenticated %}<a href="{% url 'timeline' %}">Journal</a>{% if member.role == 'owner' %}<a href="{% url 'members' %}">Care team</a><a href="{% url 'access-settings' %}">Data access</a>{% endif %}{% endif %}<a href="{% url 'install' %}">Install</a><button type="button" class="secondary theme-toggle" data-theme-toggle aria-label="Use dark mode" aria-pressed="false" hidden>Dark mode</button>
 {% if user.is_authenticated %}<form action="{% url 'account_logout' %}" method="post">{% csrf_token %}<button class="text-button">Sign out</button></form>{% endif %}</nav></header>
 <main id="main">{% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}{% block content %}{% endblock %}</main>
 <footer>One child. A shared understanding.<span>Private by default · Times in Asia/Manila</span></footer></body></html>

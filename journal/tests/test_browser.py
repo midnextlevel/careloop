@@ -13,6 +13,15 @@ from .test_journal import identity
 
 @skipUnless(os.getenv('BROWSER_NODE'), 'Set BROWSER_NODE and NODE_PATH to run Playwright browser verification.')
 class BrowserWorkflowTests(StaticLiveServerTestCase):
+    def test_dark_mode_and_owner_overview(self):
+        owner, _ = identity('owner', 'browser-theme-owner')
+        self.client.force_login(owner)
+        env = dict(os.environ, JOURNAL_BROWSER_URL=self.live_server_url,
+                   JOURNAL_BROWSER_SESSION=self.client.cookies['sessionid'].value)
+        result = subprocess.run([os.environ['BROWSER_NODE'], str(Path(__file__).with_name('theme.cjs'))],
+                                env=env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_owner_closes_and_restores_professional_access(self):
         owner, _ = identity('owner', 'browser-access-owner')
         teacher, tm = identity('teacher', 'browser-access-teacher')
