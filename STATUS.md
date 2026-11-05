@@ -2,6 +2,9 @@
 
 ## Implemented
 
+- Touch-target/form refinement: navigation controls have larger gaps, mobile actions have at least 48px height, and save/review, confirm/back, and owner save/hide controls are separated by 14–16px gaps. Entry form now uses numbered fieldset sections, shorter textareas, collapsed optional follow-up, a clear audience section, and a separate save/review action card. The confirmation checkbox has a padded clickable label.
+- Verification: all 52 PostgreSQL/browser tests passed after the refinement. Browser assertions check mobile save/review and confirm/back target heights and gaps, plus overflow; the mobile entry-form screenshot was visually inspected. Existing draft, conflict, expiry, privacy, dark-mode, and modal tests remain passing. No schema changes.
+
 - Compact UI revision: smaller shared header/typography/card spacing, a full-width timeline without the oversized sidebar, inline entry footers, and a compact date toolbar. Homepage defaults to the current Asia/Manila date; explicit ?all=1 shows full history. Previous/next links, Today, and missed-day entry prefilling remain available.
 - Native modal dialogs added for date selection, author-only drafts, access information, and owner per-entry access settings. The persistent professional-access notice is now on-demand information, not a homepage warning. Dialogs support Escape, close buttons, backdrop dismissal, focus containment/restoration, and private content remains memory-only. Date filtering and draft links have noscript fallbacks.
 

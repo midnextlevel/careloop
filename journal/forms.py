@@ -55,7 +55,7 @@ class EntryForm(forms.ModelForm):
         model = Entry
         fields = ['event_date', 'kind', 'summary', 'observations', 'what_helped', 'follow_up', 'audience']
         widgets = {'event_date': forms.DateInput(attrs={'type': 'date'}),
-                   **{field: forms.Textarea(attrs={'rows': 4}) for field in ['summary', 'observations', 'what_helped', 'follow_up']}}
+                   **{field: forms.Textarea(attrs={'rows': 3}) for field in ['summary', 'observations', 'what_helped', 'follow_up']}}
         labels = {'kind': 'Entry type', 'summary': 'Daily summary', 'what_helped': 'What helped', 'follow_up': 'Follow-up (optional)'}
 
 

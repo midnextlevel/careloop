@@ -107,6 +107,10 @@ Each submitted entry has an optional `professional_access_until` override. An ow
 
 `create_dev_user <username> --role teacher|therapist|owner --name "Display name"` creates another named local test account and prompts for its password. It requires development mode and never overwrites an existing account. `create_dev_owner` remains compatible with the earlier setup commands. Actual local test-account credentials live under ignored `.local/`, not in this public guide.
 
+## Entry form and touch targets
+
+The professional entry form separates date/type, observations, and audience into numbered fieldsets. Follow-up is optional and collapsed unless it already has content. Save draft and Review audience occupy a separate action card. Mobile buttons are at least 48px tall, with 14–16px gaps between adjacent submission actions; review confirmation uses a padded checkbox label. Owner Save entry access and Hide now are spaced apart and visually distinguished. Browser checks cover target dimensions and overflow alongside the submission workflow.
+
 ## Light and dark mode
 
 Careloop follows the device’s light/dark preference initially. The header toggle switches mode; a `careloop_theme` cookie remembers only `light` or `dark` for one year on that browser. It contains no identity or journal content and uses SameSite=Lax plus Secure on HTTPS. No localStorage or IndexedDB is used. Theme CSS covers timeline cards, entry forms, native date inputs, badges, notices, and owner controls. Without JavaScript, the device color scheme still applies. The theme script is public and included in the static cache allowlist.
