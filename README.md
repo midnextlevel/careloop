@@ -20,12 +20,18 @@ Careloop uses Django 5.2 LTS, PostgreSQL 17, server-rendered templates, and a sm
 | Content | Who can read it? |
 | --- | --- |
 | Draft | Its author only |
-| Parent + author entry | Its author and the parent |
-| Care-team entry | Its author, the parent, and approved professionals within their allowed history |
+| Parent + author entry | The parent, and its author while professional access is allowed |
+| Care-team entry | The parent and approved professionals within their allowed history and access deadline |
 | Comments | Anyone who can read the entry |
-| Previous versions | The author and parent only |
+| Previous versions | The parent, and the author while they can access the entry |
 
-**Parent + author** is the default audience. Only authors can edit their entries. New professionals start without past shared history; the owner can deliberately adjust their history access.
+**Care team** is the default audience for new entries. Existing Parent + author entries retain their audience. Drafts remain private, and only authors can edit entries they can currently access. New professionals start without past shared history; the owner can deliberately adjust it.
+
+## Control access as the owner
+
+Open **Data access** and either choose a fixed deadline with the date picker or leave it blank and set a number of days after submission (30 by default). Access expires for teachers and therapists, including their own submitted entries; owner access remains available. Changing these settings affects existing and new entries on the next request.
+
+To restore or close access to a particular entry, open it as owner and use its **Data access** panel. Set a new deadline, choose **Hide now**, or clear the deadline to use the journal-wide setting. Entry-specific deadlines take precedence over the global deadline. Audience and membership history restrictions still apply, and editing an entry does not restart its original submission clock.
 
 ## Find or revise an earlier day
 
@@ -106,7 +112,7 @@ The tests use a separate database. Browser tests require optional Playwright con
 
 ## Current status
 
-The last full PostgreSQL run passed **36 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+The last full PostgreSQL run passed **47 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
 
 The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
 

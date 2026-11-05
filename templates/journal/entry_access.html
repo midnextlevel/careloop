@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block title %}Entry access{% endblock %}{% block content %}
+<section class="card reading"><h1>Data access</h1><form method="post" action="{% url 'entry-access' entry.pk %}">{% csrf_token %}{{ form.as_p }}<button class="primary">Save entry access</button></form></section>{% endblock %}

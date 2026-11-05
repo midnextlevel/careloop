@@ -190,7 +190,7 @@ class JournalTests(TestCase):
         self.assertEqual(result.json()['version'], 2)
         draft.refresh_from_db()
         review = self.client.post(url, self.payload(draft) | {'action': 'review'})
-        self.assertContains(review, 'Parent + author')
+        self.assertContains(review, 'Care team')
         ticket = review.context['ticket']
         pub = reverse('publish', args=[draft.pk])
         for _ in range(2):

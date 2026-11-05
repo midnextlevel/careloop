@@ -2,6 +2,20 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+
+class JournalAccessSettings(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    access_days = models.PositiveSmallIntegerField(default=30,
+        validators=[MinValueValidator(1), MaxValueValidator(3650)])
+    expire_authors = models.BooleanField(default=True)
+    access_until = models.DateTimeField(null=True, blank=True)
+
+    @classmethod
+    def current(cls):
+        settings, _ = cls.objects.get_or_create(pk=1)
+        return settings
 
 
 class Membership(models.Model):
@@ -43,7 +57,8 @@ class Entry(models.Model):
     observations = models.TextField(blank=True, max_length=10000)
     what_helped = models.TextField(blank=True, max_length=10000)
     follow_up = models.TextField(blank=True, max_length=10000)
-    audience = models.CharField(max_length=10, choices=Audience.choices, default=Audience.PARENT)
+    audience = models.CharField(max_length=10, choices=Audience.choices, default=Audience.TEAM)
+    professional_access_until = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
     submitted_at = models.DateTimeField(null=True, blank=True)

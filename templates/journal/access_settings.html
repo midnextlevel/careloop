@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}Data access{% endblock %}{% block content %}
+<span class="eyebrow">OWNER CONTROLS</span><h1>Your journal, your access rules</h1>
+<section class="card reading"><h2>Professional access period</h2><p>Choose a fixed date and time, or leave it blank and use a number of days after each original submission. Teachers and therapists lose access when the deadline is reached. You retain access to all submitted entries. Drafts stay private to their authors.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Save access settings</button></form>
+<hr><h2>Restore or close access to an entry</h2><p>Open an entry as owner and use its Data access panel. Set a future deadline to restore access, select Hide now to close it, or clear the deadline to return to the journal-wide period. These controls do not change the entry's audience or grant earlier membership history.</p>
+<p>Changing the access period affects existing entries immediately on the next request. An entry's explicit deadline takes precedence. Revisions do not restart the clock.</p></section>{% endblock %}

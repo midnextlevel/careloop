@@ -21,6 +21,18 @@ class DevelopmentLoginTests(TestCase):
             self.assertEqual(self.client.get('/').status_code, 403)
             self.assertEqual(self.client.get('/development/login/').status_code, 404)
 
+    def test_professional_test_accounts_have_assigned_roles_without_owner_controls(self):
+        for role in ('teacher', 'therapist'):
+            with self.subTest(role=role), patch('sys.stdin', StringIO('Fictional-Strong-Password-123!\n')):
+                call_command('create_dev_user', role, role=role, password_stdin=True, stdout=StringIO())
+                member = Membership.objects.get(user__username=role)
+                self.assertEqual(member.role, role)
+                self.assertTrue(member.is_development)
+                self.client.logout()
+                self.assertEqual(self.client.post('/development/login/', {
+                    'username': role, 'password': 'Fictional-Strong-Password-123!'}).status_code, 302)
+                self.assertEqual(self.client.get('/team/').status_code, 403)
+
     def test_google_users_and_nonlocal_clients_denied(self):
         user, _ = identity('owner', 'real-google')
         user.set_password('Fictional-Strong-Password-123!')

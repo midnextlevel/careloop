@@ -1,11 +1,47 @@
 from django import forms
 from django.utils import timezone
-from .models import Entry, Membership
+from .models import Entry, Membership, JournalAccessSettings
 
 
 class TimelineDateForm(forms.Form):
     date = forms.DateField(required=False, label='Find a date', input_formats=['%Y-%m-%d'],
         widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}))
+
+
+class JournalAccessForm(forms.ModelForm):
+    class Meta:
+        model = JournalAccessSettings
+        fields = ['access_until', 'access_days', 'expire_authors']
+        labels = {'access_days': 'Days of access after submission',
+                  'access_until': 'Fixed access deadline (optional)',
+                  'expire_authors': 'Also expire access to their own submitted entries'}
+        widgets = {'access_until': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M')}
+        help_texts = {'access_until': 'Pick an Asia/Manila date and time to close access to all submitted entries. Leave blank to use the number of days below. Individual entry deadlines take precedence.',
+                     'access_days': 'Used when the fixed deadline is blank. Applies to existing and new submitted entries; the owner retains access.'}
+
+    def clean_access_until(self):
+        value = self.cleaned_data.get('access_until')
+        original = self.instance.access_until
+        if value and original and value == timezone.localtime(original).replace(second=0, microsecond=0):
+            return original
+        return value
+
+
+class EntryAccessForm(forms.ModelForm):
+    class Meta:
+        model = Entry
+        fields = ['professional_access_until']
+        labels = {'professional_access_until': 'Allow professional access until'}
+        widgets = {'professional_access_until': forms.DateTimeInput(
+            attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M')}
+        help_texts = {'professional_access_until': 'Asia/Manila time. Leave blank to use the journal-wide access period. Audience and membership history restrictions still apply.'}
+
+    def clean_professional_access_until(self):
+        value = self.cleaned_data.get('professional_access_until')
+        original = self.instance.professional_access_until
+        if value and original and value == timezone.localtime(original).replace(second=0, microsecond=0):
+            return original
+        return value
 
 
 class EntryForm(forms.ModelForm):

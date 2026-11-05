@@ -86,10 +86,10 @@ def main():
         stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
         backup = folder / f'journal-{stamp}.dump'
         target = 'journal_restore_' + secrets.token_hex(6)
-        count_code = ('from journal.models import Entry,Membership,Revision,Comment; '
+        count_code = ('from journal.models import Entry,Membership,Revision,Comment,JournalAccessSettings; '
                       'from django.contrib.auth import get_user_model; '
                       'from django.core.serializers.json import DjangoJSONEncoder; '
-                      'import json,hashlib; models=[Entry,Membership,Revision,Comment,get_user_model()]; '
+                      'import json,hashlib; models=[Entry,Membership,Revision,Comment,get_user_model(),JournalAccessSettings]; '
                       'tables={m.__name__:list(m.objects.order_by("pk").values()) for m in models}; '
                       'print(json.dumps({"counts":{k:len(v) for k,v in tables.items()}, '
                       '"sha256":hashlib.sha256(json.dumps(tables,cls=DjangoJSONEncoder,sort_keys=True).encode()).hexdigest()}))')
