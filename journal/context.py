@@ -1,6 +1,7 @@
 from django.conf import settings
 from .policies import can_post, development_access_allowed
 from .models import JournalAccessSettings
+from allauth.socialaccount.models import SocialApp
 
 def site(request):
     member = getattr(request, 'membership', None)
@@ -10,5 +11,5 @@ def site(request):
             'member': member,
             'can_post': can_post(getattr(request, 'membership', None)),
             'development_login': development_access_allowed(request),
-            'google_configured': bool(settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id'] and
-                                      settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret'])}
+            'google_configured': bool(settings.SOCIALACCOUNT_PROVIDERS['google'].get('APP') or
+                                      SocialApp.objects.filter(provider='google').exclude(client_id='').exclude(secret='').exists())}

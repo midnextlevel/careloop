@@ -13,6 +13,7 @@ class JournalAccessSettings(models.Model):
     access_until = models.DateTimeField(null=True, blank=True)
     child_name = models.CharField(max_length=80, blank=True)
     setup_completed = models.BooleanField(default=False)
+    deployment_completed = models.BooleanField(default=False)
 
     @classmethod
     def current(cls):

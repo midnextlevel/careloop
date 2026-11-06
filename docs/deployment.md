@@ -2,6 +2,8 @@
 
 Use the [README quick start](../README.md#quick-start-with-docker) for a fresh local installation. This guide covers Google sign-in and the Linux VM deployment.
 
+For a fresh production VM, the [first-deployment browser wizard](first-deployment.md) handles initial owner approval and Google credentials using a private VM-generated code. The manual environment configuration below is an alternative; do not configure the same provider in both `.env` and a database SocialApp.
+
 ## Google sign-in
 
 1. In Google Cloud, create/select a project and configure Google Auth Platform branding, audience/consent, and data access for `openid`, `email`, `profile`. Add permitted Google test users if the consent app is in testing mode.

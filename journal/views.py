@@ -57,6 +57,9 @@ def owner_required(view):
 def login_page(request):
     if request.user.is_authenticated:
         return redirect('timeline')
+    from .deployment import deployment_open
+    if deployment_open():
+        return redirect('deployment')
     return render(request, 'journal/login.html')
 
 

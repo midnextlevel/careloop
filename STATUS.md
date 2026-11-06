@@ -2,6 +2,10 @@
 
 ## Current implementation
 
+- Added a first-deployment browser wizard, separate from post-login child/team setup. A fresh VM helper generates production secrets and a 24-hour private setup code hash; HTTPS/code/session checks gate initial owner approval and database-backed Google credentials. Completion is atomic and permanently locks the wizard when accounts exist. Existing environment-configured deployments retain their configuration. Added a private console command to repair browser-configured OAuth credentials. Backup verification includes SocialApp, SocialAccount and EmailAddress data.
+- Unapproved/revoked Google sign-ins now show a branded recovery page with an account-selector retry and sign-in link. Cancelled/failed Google flows have branded pages too; approval and subject-binding checks remain enforced.
+- Verification: all 84 PostgreSQL/browser tests passed, including fresh browser deployment, TLS/CSRF/code expiry gates, post-completion lockout, correct owner approval, standard allauth database configuration, and branded denial recovery. System checks and migration drift checks passed. Local dump/restore verification passed with the expanded OAuth tables included in its digest.
+
 - Consistent Careloop branding across welcome/sign-in, setup/menu, install instructions, offline fallback and footer. Feature pages use the same Care team/Data access labels as navigation. Welcome layout uses a responsive grid instead of a fixed-position sign-in card; browser checks cover 320/390/768/1280 px in light and dark mode.
 
 - Review fixes: in-flight text edits invalidate the pending review while preserving the editor; publishing returns an explicit JSON success and destination to JavaScript (including when professional expiry redirects to the journal); access-policy saves update only their own fields so concurrent setup changes survive. All 72 PostgreSQL/browser tests passed, including regression coverage for all three previously reproduced failures. Django checks and migration-drift checks passed; no schema change is needed.

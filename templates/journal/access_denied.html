@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% block title %}Sign-in unavailable{% endblock %}{% block content %}
+<section class="card reading"><span class="eyebrow">CARELOOP · PRIVATE ACCESS</span><h1>This account can’t access Careloop</h1><p>Your Google account has not been approved for this Careloop journal, or its access is no longer available.</p><p>Try the Google account approved by the parent or owner. If you need access, ask them to approve your exact Google email in Care team.</p>
+{% if google_configured and not user.is_authenticated %}<form action="{% url 'google_login' %}" method="post">{% csrf_token %}<button class="primary">Try another Google account</button></form>{% endif %}
+<p class="all-dates-link"><a href="{% url 'login' %}">Back to Careloop sign-in</a></p></section>{% endblock %}

@@ -77,6 +77,8 @@ See the [development guide](docs/development.md) for local accounts, [phone test
 
 ## Quick start with Docker
 
+For a new production VM, use the [browser deployment wizard](docs/first-deployment.md). A VM-side helper generates private bootstrap settings and a one-time setup code; the browser wizard collects the first owner, child display name and Google credentials. The manual setup below remains available for local development and environment-configured deployments.
+
 For a fresh installation, you need Docker with Compose v2 and Google OAuth credentials. Production sign-in uses approved Google accounts.
 
 ```sh

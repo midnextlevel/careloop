@@ -1,5 +1,5 @@
 from django.contrib.auth import logout
-from django.http import HttpResponse
+from django.shortcuts import render
 from .policies import development_access_allowed, membership_for
 
 
@@ -13,7 +13,7 @@ class MembershipMiddleware:
             request.membership = None
         if request.user.is_authenticated and request.membership is None:
             logout(request)
-            response = HttpResponse('Access revoked or not approved. Contact the parent.', status=403)
+            response = render(request, 'journal/access_denied.html', status=403)
         else:
             response = self.get_response(request)
         # All dynamic responses, including OAuth/errors/redirects, are non-cacheable.

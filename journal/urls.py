@@ -1,7 +1,9 @@
 from django.urls import path
 from . import views
+from .deployment import deployment
 
 urlpatterns = [
+    path('deployment/', deployment, name='deployment'),
     path('welcome/', views.welcome, name='welcome'),
     path('setup/', views.setup, name='setup'),
     path('profile/', views.profile, name='profile'),

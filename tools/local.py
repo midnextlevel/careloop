@@ -88,8 +88,10 @@ def main():
         target = 'journal_restore_' + secrets.token_hex(6)
         count_code = ('from journal.models import Entry,Membership,Revision,Comment,JournalAccessSettings,EntryPhoto; '
                       'from django.contrib.auth import get_user_model; '
+                      'from allauth.socialaccount.models import SocialApp,SocialAccount; '
+                      'from allauth.account.models import EmailAddress; '
                       'from django.core.serializers.json import DjangoJSONEncoder; '
-                      'import json,hashlib; models=[Entry,Membership,Revision,Comment,get_user_model(),JournalAccessSettings,EntryPhoto]; '
+                      'import json,hashlib; models=[Entry,Membership,Revision,Comment,get_user_model(),JournalAccessSettings,EntryPhoto,SocialApp,SocialAccount,EmailAddress]; '
                       'tables={m.__name__:[{k:hashlib.sha256(bytes(v)).hexdigest() if isinstance(v,(bytes,memoryview)) else v for k,v in row.items()} for row in m.objects.order_by("pk").values()] for m in models}; '
                       'print(json.dumps({"counts":{k:len(v) for k,v in tables.items()}, '
                       '"sha256":hashlib.sha256(json.dumps(tables,cls=DjangoJSONEncoder,sort_keys=True).encode()).hexdigest()}))')

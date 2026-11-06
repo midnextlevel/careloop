@@ -75,9 +75,15 @@ SOCIALACCOUNT_LOGIN_ON_GET = False
 SOCIALACCOUNT_STORE_TOKENS = False
 SOCIALACCOUNT_PROVIDERS = {'google': {
     'APP': {'client_id': os.getenv('GOOGLE_CLIENT_ID', ''), 'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''), 'key': ''},
-    'SCOPE': ['openid', 'email', 'profile'], 'AUTH_PARAMS': {'access_type': 'online'},
+    'SCOPE': ['openid', 'email', 'profile'], 'AUTH_PARAMS': {'access_type': 'online', 'prompt': 'select_account'},
     'OAUTH_PKCE_ENABLED': True,
 }}
+# A fresh deployment can configure the standard allauth SocialApp through the
+# private wizard. Existing environment-configured installations keep working.
+if not (os.getenv('GOOGLE_CLIENT_ID') and os.getenv('GOOGLE_CLIENT_SECRET')):
+    SOCIALACCOUNT_PROVIDERS['google'].pop('APP')
+DEPLOYMENT_CODE_HASH = os.getenv('DEPLOYMENT_CODE_HASH', '')
+DEPLOYMENT_CODE_EXPIRES = int(os.getenv('DEPLOYMENT_CODE_EXPIRES', '0'))
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/welcome/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/login/'
