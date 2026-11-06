@@ -126,6 +126,8 @@ Run the documented test commands for your checkout and follow the [deployment ve
 
 ## Deployment and maintenance
 
+Use the [encrypted backup guide](docs/backups.md) for verified recovery archives, off-VM storage and daily scheduling. Keep the private recovery key off the VM.
+
 Read the [deployment guide](docs/deployment.md) for Google callback URLs, HTTPS and proxy settings, database isolation, backups, and restore verification.
 
 For production, disable development login and debug mode, configure real Google credentials and your domain, and run the documented deployment checks. Keep `.env`, `.local`, credentials, databases, and backups out of Git.

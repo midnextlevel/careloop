@@ -60,6 +60,8 @@ The deployment check reports W005/W021 because subdomain-wide HSTS and browser p
 
 ## Backup and recovery
 
+For encrypted archives, restore verification, mounted off-VM destinations and daily scheduling, use the [backup helper guide](backups.md). The raw dump commands below remain useful for manual database administration.
+
 These commands use a Linux shell on the VM. Never commit backups. Protect and encrypt backups, copy them off the VM to a restricted destination, and apply your retention policy. PostgreSQL dumps include private entries, photos, revisions, memberships, access settings, and sessions; keep `.env` separately in secure secret storage.
 
 ```sh

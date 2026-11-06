@@ -40,6 +40,8 @@ Completing deployment approves an email; Google must still verify that identity.
 
 ## Credentials and recovery
 
+After first sign-in, configure [encrypted off-VM backups](backups.md). Scheduling and remote mounts are host-administrator tasks; repeat them after rebuilding a VM. The recovery key belongs on your own computer or secure key storage, not on the VM being backed up.
+
 Browser-configured Google credentials are stored in the private PostgreSQL `SocialApp` record used by django-allauth. Backups therefore contain the Google client secret as well as private journal data: protect them accordingly. Keep Google credentials out of source control. Environment-configured installations continue using `.env`; use only one Google configuration source per deployment.
 
 For a browser-configured installation that needs a corrected Google secret, use the VM console:
