@@ -6,7 +6,7 @@ Parents, teachers, and therapists can log observations, save private drafts, and
 
 ## What you can do
 
-On first Google sign-in, owners start a two-step setup wizard to choose the child's display name and review the care team. Reopen it from **Menu → Journal setup**. Teachers and therapists complete **My profile** with their full name and school or therapy center; owners can also maintain these details through **Care team**. Names and affiliations appear alongside entries within their existing audience. Anonymous visitors do not see the child's configured name.
+On first Google sign-in, owners start a two-step setup wizard to choose the child's display name and review the care team. Reopen it from **Menu → Careloop setup**. Teachers and therapists complete **My profile** with their full name and school or therapy center; owners can also maintain these details through **Care team**. Names and affiliations appear alongside entries within their existing audience. Anonymous visitors do not see the child's configured name.
 
 - Parents, teachers, and therapists record a daily summary, observations, what helped, and any follow-up.
 - Attach up to two optional photos; uploads are optimized and remain private to the entry’s audience.
@@ -56,24 +56,9 @@ To restore or close access to a particular entry, open it as owner and use its *
 
 To add an entry for a missed day, select that date and choose **Write an entry**. The event date is filled in for you. **Show all dates**, inside the date picker, returns to the full timeline. Open **Drafts** to see your private drafts for that day. **Menu → Access info** explains the active expiry rule in a dialog; it is informational, not an account error. Entry-specific owner access controls also open in a dialog. The same privacy and history-access rules apply.
 
-## Try the existing local setup
+## Local development
 
-On the Windows machine where this project was prepared:
-
-1. Open [Careloop](http://127.0.0.1:8000/development/login/).
-2. Sign in as **test-parent** (display name **Test Parent**).
-3. Find the generated password in `.local/development-account.txt`.
-
-The password, local database, and sample content are **not included in this repository**. This login only works locally when development mode is explicitly enabled. Use fictional data for testing.
-
-If the local services have stopped, run these commands from the project folder in PowerShell. Skip the first command if PostgreSQL is already running.
-
-```powershell
-.\.venv\Scripts\python.exe tools\local.py start
-.\.venv\Scripts\python.exe tools\local.py manage runserver 127.0.0.1:8000 --noreload
-```
-
-See the [development guide](docs/development.md) for local accounts, [phone testing over Wi-Fi](docs/development.md#test-on-a-phone-over-wi-fi), and backup verification.
+Use the [development guide](docs/development.md) for native Windows helpers, fictional test accounts, phone testing and backup verification. Development password login is explicitly opt-in and is disabled in production. Credentials, databases and generated artifacts belong in ignored local files.
 
 ## Quick start with Docker
 
@@ -133,11 +118,11 @@ Attach up to **two photos per entry**, including existing photos. Accepted forma
 
 Draft photos stay author-only. Submitted photos follow entry audience, history, expiry and revocation controls. Removed photos from submitted entries remain in the previous-version history for the parent and author while they can access the entry. Photos are stored privately in PostgreSQL, served through authenticated endpoints with no-store headers, and included in database backups. There is no public media directory.
 
-## Current status
+## Verification
 
-The last full PostgreSQL run passed **64 tests**, including the browser workflow and concurrent-write tests. Local backup/restore verification also passed.
+Automated checks cover approved Google identities, role and history permissions, revocation, draft privacy, photos, concurrent edits, retry-safe publication, setup lockout and mobile browser workflows. Provider tests use mocked Google identities; live OAuth and installation on physical devices are separate deployment acceptance checks.
 
-The three earlier review findings are fixed and covered by regression tests: membership edits preserve exact history timestamps, concurrent owner updates retain an authorized owner, and pending submissions prevent returning to edit until completion or failure. Actual Google sign-in, Docker image startup, and production HTTPS remain unverified. Check [STATUS.md](STATUS.md) for the current details before using real child data.
+Run the documented test commands for your checkout and follow the [deployment verification checklist](docs/deployment.md). Internal handoff notes and machine-specific verification records stay local.
 
 ## Deployment and maintenance
 

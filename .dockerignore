@@ -8,3 +8,6 @@ __pycache__
 staticfiles
 backups
 test-results
+
+# Local operational handoff notes
+/STATUS.md

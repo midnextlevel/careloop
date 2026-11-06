@@ -1,12 +1,12 @@
 # Developing Careloop
 
-## Existing Windows setup
+## Native Windows development
 
-A named local test account was added at the owner's explicit request. The app is currently configured for native PostgreSQL on `127.0.0.1:55432` and Django on `127.0.0.1:8000`. Open [local test sign-in](http://127.0.0.1:8000/development/login/). Username: **test-parent**, display name: **Test Parent**. The generated password is in the ignored `.local/development-account.txt`; it is not committed or printed by setup tools. Sample content is fictional.
+The optional native helpers support PostgreSQL on `127.0.0.1` and a Django development server. They expect a prepared `.venv`, an untracked `.env` with the local PostgreSQL connection settings, and PostgreSQL binaries under ignored `.local/postgres/pgsql/bin`. PostgreSQL binaries are available from [EDB](https://www.enterprisedb.com/download-postgresql-binaries). Use `tools/local.py init` for a new empty local database directory, then apply migrations. The helpers require `DEBUG=true` and refuse nonloopback databases.
 
-The PostgreSQL 17.11 binaries were downloaded from [EDB's official Windows binary distribution](https://www.enterprisedb.com/download-postgresql-binaries), extracted under ignored `.local/postgres`, and initialized with SCRAM password authentication and a loopback-only listener. No Windows service, Docker installation, WSL installation, or public database port was added.
+Create fictional test users with the management commands below. Keep generated credentials and data in ignored local files. Docker Compose is the standard installation path for fresh deployments.
 
-After stopping the app or restarting Windows, use these PowerShell commands from `C:\nonoy-journal` (skip `start` if PostgreSQL is already running):
+After stopping the app or restarting Windows, use these PowerShell commands from your project directory (skip `start` if PostgreSQL is already running):
 
 ```powershell
 .\.venv\Scripts\python.exe tools\local.py start
@@ -45,9 +45,9 @@ The phone and development computer must be on the same trusted local network. On
 5. Allow inbound TCP port 8000 in Windows Firewall only on the Private profile, scoped to the LAN subnet. Leave PostgreSQL on loopback.
 6. Open `http://192.168.1.50:8000` on the phone and sign in with the existing test account.
 
-Use your actual LAN address and subnet, not the examples above. This machine is currently configured as `192.168.99.95` on `192.168.99.0/24`. Its firewall rule is named `Careloop-Development-LAN`. If DHCP changes the computer's address, update the allowed hosts, origin, and firewall rule. Guest Wi-Fi, client isolation, or a VPN can prevent devices from reaching each other.
+Use your actual LAN address and subnet, not the examples above. If DHCP changes the computer's address, update the allowed hosts, origin, and firewall rule. Guest Wi-Fi, client isolation, or a VPN can prevent devices from reaching each other.
 
-Login and every development session request check the direct client IP; forwarded headers cannot grant access. Clearing `DEV_LOGIN_NETWORKS` returns login to loopback-only access. After phone testing, stop the LAN-bound server, return to the loopback command above, and disable the firewall rule from an administrator terminal with `Disable-NetFirewallRule -Name Careloop-Development-LAN`.
+Login and every development session request check the direct client IP; forwarded headers cannot grant access. Clearing `DEV_LOGIN_NETWORKS` returns login to loopback-only access. After phone testing, stop the LAN-bound server, return to the loopback command above, and disable the development firewall rule you created from an administrator terminal.
 
 This HTTP setup is for fictional development data. HTTPS is needed for normal phone PWA installation, service workers, and production use. Never port-forward this development server to the internet.
 
@@ -83,7 +83,7 @@ $env:TEST_SQLITE='1'
 .\.venv\Scripts\python.exe manage.py test --verbosity 2
 ```
 
-Optional browser test uses Node.js, Playwright, and installed Chrome. Install Playwright in an external tooling directory (`npm install playwright` there), set `NODE_PATH` to its `node_modules`, and set `BROWSER_NODE` to the absolute Node executable. Then rerun `manage.py test`. For Playwright-managed Chromium, install it (`npx playwright install chromium`) and set `BROWSER_CHANNEL=chromium`. Screenshots are written to ignored `test-results/`. The browser uses a session created solely inside Django's isolated automated test; this test does not use the separate local development login. See [STATUS.md](../STATUS.md) for actual results and unverified checks.
+Optional browser test uses Node.js, Playwright, and installed Chrome. Install Playwright in an external tooling directory (`npm install playwright` there), set `NODE_PATH` to its `node_modules`, and set `BROWSER_NODE` to the absolute Node executable. Then rerun `manage.py test`. For Playwright-managed Chromium, install it (`npx playwright install chromium`) and set `BROWSER_CHANNEL=chromium`. Screenshots are written to ignored `test-results/`. The browser uses a session created solely inside Django's isolated automated test; this test does not use the separate local development login. Record machine-specific verification results in local handoff notes, outside version control.
 
 ## Journal behavior
 
@@ -131,4 +131,4 @@ Careloop follows the device’s light/dark preference initially. The header togg
 
 ## Architecture
 
-`journal/policies.py` centralizes visibility and author/owner policies; every entry/comment endpoint applies them. `journal/middleware.py` checks active membership on every authenticated request and sets dynamic no-store headers. `journal/adapters.py` gates Google admission and binds identities transactionally. `journal/services.py` serializes writes with PostgreSQL row locks, version checks, and revision snapshots. Review tickets bind content, audience, author, entry, version, and retry token with Django signing. No Django admin is exposed. The explicitly enabled native development login is restricted to marked test accounts and explicitly allowed development networks; production uses Google. `STATUS.md` tracks completed work and deployment acceptance checks.
+`journal/policies.py` centralizes visibility and author/owner policies; every entry/comment endpoint applies them. `journal/middleware.py` checks active membership on every authenticated request and sets dynamic no-store headers. `journal/adapters.py` gates Google admission and binds identities transactionally. `journal/services.py` serializes writes with PostgreSQL row locks, version checks, and revision snapshots. Review tickets bind content, audience, author, entry, version, and retry token with Django signing. No Django admin is exposed. The explicitly enabled native development login is restricted to marked test accounts and explicitly allowed development networks; production uses Google. Internal handoff notes and operational acceptance records stay local and are excluded from source control.
