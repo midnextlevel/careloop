@@ -13,6 +13,7 @@ from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.urls import reverse
 from django.views.decorators.http import require_POST, require_GET
 from .forms import EntryForm, MemberForm, TimelineDateForm, JournalAccessForm, EntryAccessForm, SetupForm, ProfileForm
 from .models import Entry, EntryPhoto, Membership, Comment, JournalAccessSettings
@@ -221,10 +222,13 @@ def publish(request, pk):
     except Conflict as exc:
         return render(request, 'journal/edit.html', {'entry': Entry.objects.get(pk=pk), 'form': form, 'error': str(exc)}, status=409)
     messages.success(request, 'Entry submitted.')
+    destination = reverse('detail', kwargs={'pk': entry.pk})
     if not visible_entries(request.membership).filter(pk=entry.pk).exists():
         messages.info(request, 'Professional access to this entry is closed. Ask the owner to restore it.')
-        return redirect('timeline')
-    return redirect('detail', pk=entry.pk)
+        destination = reverse('timeline')
+    if request.headers.get('Accept') == 'application/json':
+        return JsonResponse({'published': True, 'redirect_url': destination})
+    return redirect(destination)
 
 
 @owner_required
@@ -238,7 +242,8 @@ def access_settings(request):
             list(Membership.objects.select_for_update().order_by('pk'))
             if not is_owner(membership_for(request.user)):
                 raise PermissionDenied
-            form.save()
+            updated = form.save(commit=False)
+            updated.save(update_fields=['access_until', 'access_days', 'expire_authors'])
         messages.success(request, 'Data access settings updated. Changes apply on the next request.')
         return redirect('access-settings')
     return render(request, 'journal/access_settings.html', {'form': form})

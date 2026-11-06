@@ -29,6 +29,7 @@ if (editor) {
       event.preventDefault();
       saving = true;
       status.textContent = 'Preparing audience review…';
+      const reviewedGeneration = generation;
       const data = new FormData(editor);
       data.set('action', 'review');
       const photoFields = editor.querySelector('[data-photo-controls] fieldset');
@@ -40,6 +41,7 @@ if (editor) {
         const parsed = new DOMParser().parseFromString(await response.text(), 'text/html');
         const review = parsed.querySelector('.review');
         if (!response.ok || !review) throw new Error(parsed.querySelector('.error, .errorlist')?.textContent || 'Review could not be prepared. Check your connection and required fields.');
+        if (generation !== reviewedGeneration) throw new Error('Your entry changed while the review was being prepared. Review again to include your latest changes.');
         editor.hidden = true;
         editor.after(review);
         review.scrollIntoView({block:'start'});
@@ -64,12 +66,15 @@ if (editor) {
           const submitController = new AbortController();
           const submitTimeout = setTimeout(() => submitController.abort(), 20000);
           try {
-            const result = await fetch(confirmForm.action, {method:'POST', body:new FormData(confirmForm), cache:'no-store', signal:submitController.signal});
+            const result = await fetch(confirmForm.action, {method:'POST', body:new FormData(confirmForm), headers:{'Accept':'application/json'}, cache:'no-store', signal:submitController.signal});
             const expectedPath = new URL('../', confirmForm.action).pathname;
-            if (!result.ok || !result.redirected || new URL(result.url).pathname !== expectedPath) throw new Error('Submission was not confirmed. Your session may have expired or a newer version may exist. Go back to edit and open the latest version before retrying.');
+            if (!result.ok || result.redirected) throw new Error('Submission was not confirmed. Your session may have expired or a newer version may exist. Go back to edit and open the latest version before retrying.');
+            const confirmation = await result.json();
+            const destination = new URL(confirmation.redirect_url, location.href);
+            if (confirmation.published !== true || destination.origin !== location.origin || ![expectedPath, '/'].includes(destination.pathname)) throw new Error('The server did not confirm submission.');
             dirty = false;
             navigating = true;
-            location.assign(result.url);
+            location.assign(destination.href);
           } catch (error) {
             feedback.textContent = `${error.message} Your text remains in this open page. You can retry this confirmation safely.`;
           } finally {

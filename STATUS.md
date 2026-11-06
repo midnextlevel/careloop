@@ -2,6 +2,8 @@
 
 ## Current implementation
 
+- Review fixes: in-flight text edits invalidate the pending review while preserving the editor; publishing returns an explicit JSON success and destination to JavaScript (including when professional expiry redirects to the journal); access-policy saves update only their own fields so concurrent setup changes survive. All 72 PostgreSQL/browser tests passed, including regression coverage for all three previously reproduced failures. Django checks and migration-drift checks passed; no schema change is needed.
+
 - First-login owner setup wizard saves the child's display name in the database and reviews approved professionals; it can be reopened from Menu. Professional profiles store display name and school/therapy center, editable by their author or the owner. Self-service forms cannot change roles, email identities or access settings. Anonymous pages omit the configured child name. Migration 0006 adds these fields without replacing existing memberships or access policy.
 
 - Phone UI reviewed at 320, 360, 390, 430, 768 and 1280 px. Supplied logo prepared for light/dark headers, favicon and installed-app icons. Header navigation moved into an accessible Menu dialog; Today/all-history shortcuts are in the date dialog, Access info in Menu. The 390 px timeline begins around 298 px instead of 595 px. Header is 72 px instead of 167 px. Touch controls retain at least 44 px targets; writing buttons retain 48 px height and a 12 px gap. Date/type share a row; Save/Review stay reachable together. Desktop date control stays bounded. Public service-worker allowlist includes only the new brand asset alongside existing public files, with a cache version bump.
