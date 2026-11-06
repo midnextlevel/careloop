@@ -2,6 +2,8 @@
 
 ## Current implementation
 
+- Consistent Careloop branding across welcome/sign-in, setup/menu, install instructions, offline fallback and footer. Feature pages use the same Care team/Data access labels as navigation. Welcome layout uses a responsive grid instead of a fixed-position sign-in card; browser checks cover 320/390/768/1280 px in light and dark mode.
+
 - Review fixes: in-flight text edits invalidate the pending review while preserving the editor; publishing returns an explicit JSON success and destination to JavaScript (including when professional expiry redirects to the journal); access-policy saves update only their own fields so concurrent setup changes survive. All 72 PostgreSQL/browser tests passed, including regression coverage for all three previously reproduced failures. Django checks and migration-drift checks passed; no schema change is needed.
 
 - First-login owner setup wizard saves the child's display name in the database and reviews approved professionals; it can be reopened from Menu. Professional profiles store display name and school/therapy center, editable by their author or the owner. Self-service forms cannot change roles, email identities or access settings. Anonymous pages omit the configured child name. Migration 0006 adds these fields without replacing existing memberships or access policy.

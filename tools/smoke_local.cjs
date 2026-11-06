@@ -32,9 +32,9 @@ const assert = require('node:assert/strict');
     await page.screenshot({path:'test-results/named-account-timeline.png',fullPage:true});
     await page.getByRole('button',{name:'Menu', exact:true}).click();
     await page.getByRole('button',{name:'Sign out'}).click();
-    await page.getByRole('heading',{name:'Welcome to the journal'}).waitFor();
+    await page.getByRole('heading',{name:'Welcome to Careloop'}).waitFor();
     await page.goto(entryUrl);
-    await page.getByRole('heading',{name:'Welcome to the journal'}).waitFor();
+    await page.getByRole('heading',{name:'Welcome to Careloop'}).waitFor();
     console.log('PASS: named owner login, owner posting availability, owner controls, dark mode, mobile layout, logout, anonymous denial.');
   } finally { await browser.close(); }
 })().catch(error=>{console.error(error);process.exit(1);});

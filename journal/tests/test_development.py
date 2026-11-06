@@ -58,7 +58,7 @@ class DevelopmentLoginTests(TestCase):
     @override_settings(DEV_LOGIN_NETWORKS=(ip_network('192.168.99.0/24'),))
     def test_explicit_lan_login_and_session_scope(self):
         address = {'REMOTE_ADDR': '192.168.99.42'}
-        self.assertContains(self.client.get('/login/', **address), 'Local test account sign-in')
+        self.assertContains(self.client.get('/login/', **address), 'Careloop test account sign-in')
         self.assertEqual(self.client.post('/development/login/', {
             'username': 'test-parent', 'password': 'Fictional-Strong-Password-123!'}, **address).status_code, 302)
         self.assertEqual(self.client.get('/', **address).status_code, 200)
